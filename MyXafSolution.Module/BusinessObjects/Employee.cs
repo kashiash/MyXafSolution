@@ -1,7 +1,9 @@
-﻿using DevExpress.Persistent.BaseImpl.EF;
+﻿using DevExpress.Persistent.Base;
+using DevExpress.Persistent.BaseImpl.EF;
 
 namespace MySolution.Module.BusinessObjects;
 
+[DefaultClassOptions]
 public class Employee : BaseObject
 {
 
