@@ -1,4 +1,4 @@
-# Aplikaca XAf z EF Pierwsza krew
+# Aplikacja XAF z EF Pierwsza krew
 
 
 
@@ -64,3 +64,38 @@ uwaga! to trzeba ustawić w blazor server w plik appseting.json oraz w * Win App
 
 
 ## Aktualizacja bazy danych:
+
+Instalujemy pierdolety potrzebne Ef do aktualizacji bazy :
+
+w package Manager console dla MySolution.Module instalujemy pakiety:
+
+
+
+```powershell
+Install-Package Microsoft.EntityFrameworkCore.Tools
+```
+
+ 
+
+```powershell
+Update-Package Microsoft.EntityFrameworkCore.Tools
+```
+
+mozemy sprawdzic czy bangla: 
+
+
+
+```powershell
+Get-Help about_EntityFrameworkCore
+```
+
+
+
+proponuje teraz w VisualStudio wejsc do magaera pakietow i zaktualizować wszystko, żeby nie mieć konfliktów wersji szczególnie dl EFCore, które Microsoft aktualizuje częściej niz system Windows.
+
+oczywiście można to zrobić w konsoli:
+
+```
+ Update-Package
+```
+
