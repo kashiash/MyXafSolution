@@ -25,7 +25,7 @@ public class MyXafSolutionDesignTimeDbContextFactory : IDesignTimeDbContextFacto
 	public MyXafSolutionEFCoreDbContext CreateDbContext(string[] args) {
 		//throw new InvalidOperationException("Make sure that the database connection string and connection provider are correct. After that, uncomment the code below and remove this exception.");
 		var optionsBuilder = new DbContextOptionsBuilder<MyXafSolutionEFCoreDbContext>();
-		optionsBuilder.UseSqlServer("Integrated Security=SSPI;Data Source=.;Initial Catalog=MyXafSolution");
+		optionsBuilder.UseSqlServer("Integrated Security=SSPI;Data Source=.;Initial Catalog=MyXafSolution;TrustServerCertificate=true");
 		optionsBuilder.UseChangeTrackingProxies();
 		optionsBuilder.UseObjectSpaceLinkProxies();
 		return new MyXafSolutionEFCoreDbContext(optionsBuilder.Options);
