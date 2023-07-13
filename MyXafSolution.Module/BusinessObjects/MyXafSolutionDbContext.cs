@@ -5,6 +5,7 @@ using DevExpress.Persistent.BaseImpl.EF.PermissionPolicy;
 using DevExpress.Persistent.BaseImpl.EF;
 using DevExpress.ExpressApp.Design;
 using DevExpress.ExpressApp.EFCore.DesignTime;
+using MySolution.Module.BusinessObjects;
 
 namespace MyXafSolution.Module.BusinessObjects;
 
@@ -23,19 +24,20 @@ public class MyXafSolutionContextInitializer : DbContextTypesInfoInitializerBase
 public class MyXafSolutionDesignTimeDbContextFactory : IDesignTimeDbContextFactory<MyXafSolutionEFCoreDbContext> {
 	public MyXafSolutionEFCoreDbContext CreateDbContext(string[] args) {
 		throw new InvalidOperationException("Make sure that the database connection string and connection provider are correct. After that, uncomment the code below and remove this exception.");
-		//var optionsBuilder = new DbContextOptionsBuilder<MyXafSolutionEFCoreDbContext>();
-		//optionsBuilder.UseSqlServer("Integrated Security=SSPI;Data Source=(localdb)\\mssqllocaldb;Initial Catalog=MyXafSolution");
-        //optionsBuilder.UseChangeTrackingProxies();
-        //optionsBuilder.UseObjectSpaceLinkProxies();
-		//return new MyXafSolutionEFCoreDbContext(optionsBuilder.Options);
+		var optionsBuilder = new DbContextOptionsBuilder<MyXafSolutionEFCoreDbContext>();
+		optionsBuilder.UseSqlServer("Integrated Security=SSPI;Data Source=.;Initial Catalog=MyXafSolution");
+		optionsBuilder.UseChangeTrackingProxies();
+		optionsBuilder.UseObjectSpaceLinkProxies();
+		return new MyXafSolutionEFCoreDbContext(optionsBuilder.Options);
 	}
 }
 [TypesInfoInitializer(typeof(MyXafSolutionContextInitializer))]
 public class MyXafSolutionEFCoreDbContext : DbContext {
 	public MyXafSolutionEFCoreDbContext(DbContextOptions<MyXafSolutionEFCoreDbContext> options) : base(options) {
 	}
-	//public DbSet<ModuleInfo> ModulesInfo { get; set; }
-	public DbSet<ReportDataV2> ReportDataV2 { get; set; }
+    //public DbSet<ModuleInfo> ModulesInfo { get; set; }
+    public DbSet<Employee> Employees { get; set; }
+    public DbSet<ReportDataV2> ReportDataV2 { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
