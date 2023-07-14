@@ -35,6 +35,12 @@ connectionString="Integrated Security=SSPI;MultipleActiveResultSets=True;Data So
 
 
 
+wiecej o ustawianiu polaczenia do bazy tutaj: https://docs.devexpress.com/eXpressAppFramework/113155/business-model-design-orm/connect-an-xaf-application-to-a-database-provider
+
+
+
+
+
 ```
 czyli zamien (localdb)\mssqllocaldb na localhost (lub . w windows)
 ```
@@ -121,13 +127,13 @@ i odkomentowujemy kod w metodzie, komentując jednocześnie lub usuwając wywola
 
 ```csharp
 public MyXafSolutionEFCoreDbContext CreateDbContext(string[] args) {
-		//throw new InvalidOperationException("Make sure that the database connection string and connection provider are correct. After that, uncomment the code below and remove this exception.");
-		var optionsBuilder = new DbContextOptionsBuilder<MyXafSolutionEFCoreDbContext>();
-		optionsBuilder.UseSqlServer("Integrated Security=SSPI;Data Source=.;Initial Catalog=MyXafSolution");
-		optionsBuilder.UseChangeTrackingProxies();
-		optionsBuilder.UseObjectSpaceLinkProxies();
-		return new MyXafSolutionEFCoreDbContext(optionsBuilder.Options);
-	}
+//throw new InvalidOperationException("Make sure that the database connection string and connection provider are correct. After that, uncomment the code below and remove this exception.");
+	var optionsBuilder = new DbContextOptionsBuilder<MyXafSolutionEFCoreDbContext>();
+	optionsBuilder.UseSqlServer("Integrated Security=SSPI;Data Source=.;Initial Catalog=MyXafSolution");
+	optionsBuilder.UseChangeTrackingProxies();
+	optionsBuilder.UseObjectSpaceLinkProxies();
+	return new MyXafSolutionEFCoreDbContext(optionsBuilder.Options);
+}
 ```
 
 następnie dodajemy/generujemy kod zarządzający wersjami:
@@ -166,12 +172,6 @@ tzn ze tam co przed chwila odkomentowaliśmy trzeba tez dodać zaufanie do certy
 ```csharp
 optionsBuilder.UseSqlServer("Integrated Security=SSPI;Data Source=.;Initial Catalog=MyXafSolution;TrustServerCertificate=true");
 ```
-
-
-
-
-
-Całość powinna dać sie uruchomić, jak nie to sugeruje przejrzenie tego co robiliscie, bo skoro takiemu jełopowi jak ja sie udalo a wam nie to wnioski wyciągnijcie sami ...
 
 
 
@@ -311,3 +311,12 @@ uwaga nazwa migracji `MyInitialMigrationNameX1`musi byc unikalna, bo inaczej bed
 add-migration MyInitialMigrationNameX1 -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.Module"
 ```
 
+
+
+
+
+
+
+i nasz peikny program powinien w winforms wygladac tak:
+
+![image-20230714002336395](image-20230714002336395.png)
