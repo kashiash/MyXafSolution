@@ -15,4 +15,7 @@ public class PhoneNumber : BaseObject
     {
         return Number;
     }
+
+
+    public virtual Employee Employee {get; set;}
 }

@@ -545,7 +545,7 @@ update-database -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.M
 
 ## Relacja 1: Many
 
-dodajemy kolejna klase:
+dodajemy kolejną klasę:
 
 ```csharp
 using DevExpress.Persistent.Base;
@@ -564,5 +564,153 @@ namespace MySolution.Module.BusinessObjects
 
     }
 }
+```
+
+
+
+rejestrujemy ja w dbcontext:
+
+
+
+```csharp
+public class MyXafSolutionEFCoreDbContext : DbContext {
+    //...
+    public DbSet<Department> Departments { get; set; }
+}
+```
+
+ w pracowniku dodajemy powiązanie do Departamnetu:
+
+
+
+```csharp
+//...
+public class Employee : BaseObject {
+    //...
+    public virtual Department Department { get; set; }
+}
+```
+
+ i w departamentach dodajemy pracowników:
+
+```csharp
+// ...
+using System.Collections.ObjectModel;
+//...
+public class Department : baseObject {
+    //..
+    public virtual IList<Employee> Employees { get; set; } = new ObservableCollection<Employee>();
+}
+```
+
+
+
+
+
+stanadard z migracją: 
+
+```
+PM> add-migration MyInitialMigrationNameXOTM -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.Module"
+Build started...
+Build succeeded.
+To undo this action, use Remove-Migration.
+PM> update-database -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.Module"
+Build started...
+Build succeeded.
+Applying migration '20230714110706_MyInitialMigrationNameXOTM'.
+```
+
+
+
+
+
+teraz dodajmy klientom liste numerow telefonicznych: (sprobuj zrobic to sam.)
+
+
+
+1. zakladamy klase phone numbers
+2. dodajemy powiaznie w phone do pracownika
+3. w pracownikach dodajemy kolekcje  telefonow
+4. dopisujemy phonenumbers do dbcontext.cs
+5. migracja bazy 
+
+1.
+
+```csharp
+[DefaultProperty(nameof(Number))]
+public class PhoneNumber : BaseObject
+{
+
+    public virtual String Number { get; set; }
+
+    public virtual String PhoneType { get; set; }
+
+    public override String ToString()
+    {
+        return Number;
+    }
+
+}
+```
+
+
+
+2.
+
+```csharp
+[DefaultProperty(nameof(Number))]
+public class PhoneNumber : BaseObject
+{
+
+   ...
+
+
+    public virtual Employee Employee {get; set;}
+}
+```
+
+
+
+3.
+
+```csharp
+public class Employee : BaseObject
+{
+    ...
+
+	public virtual IList<PhoneNumber> PhoneNumbers { get; set; } = new ObservableCollection<PhoneNumber>();
+
+}
+```
+
+
+
+4.
+
+```csharp
+public class MyXafSolutionEFCoreDbContext : DbContext {
+	public MyXafSolutionEFCoreDbContext(DbContextOptions<MyXafSolutionEFCoreDbContext> options) : base(options) {
+	}
+    ...
+    public DbSet<Employee> Employees { get; set; }
+    public DbSet<DemoTask> DemoTasks { get; set; }
+    public DbSet<Department> Departments { get; set; }
+    
+    public DbSet<PhoneNumber> PhoneNumbers { get; set; }
+    
+    
+    public DbSet<ReportDataV2> ReportDataV2 { get; set; }
+
+    ...
+    }
+}
+```
+
+5.
+
+```powershell
+PM> add-migration MyInitialMigrationNameXOTM3 -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.Module"
+
+PM> update-database -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.Module"
 ```
 
