@@ -6,6 +6,7 @@ using DevExpress.ExpressApp.Filtering;
 using DevExpress.ExpressApp.DC;
 using DevExpress.Persistent.Validation;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.ObjectModel;
 
 namespace MySolution.Module.BusinessObjects;
 
@@ -57,6 +58,8 @@ public class Employee : BaseObject
     //Use this attribute to specify the maximum string length allowed for this data field.
     [StringLength(4096)]
     public virtual string Notes { get; set; }
+
+    public virtual IList<DemoTask> DemoTasks { get; set; } = new ObservableCollection<DemoTask>();
 
 }
 public enum TitleOfCourtesy

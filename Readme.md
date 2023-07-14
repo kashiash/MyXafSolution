@@ -175,7 +175,9 @@ optionsBuilder.UseSqlServer("Integrated Security=SSPI;Data Source=.;Initial Cata
 
 
 
-rozbowujemy nasza klase Employee o dodatkowe pola:
+## Modyfikacja modelu
+
+rozbudowujemy nasza klase Employee o dodatkowe pola:
 
 
 
@@ -320,3 +322,204 @@ add-migration MyInitialMigrationNameX1 -StartupProject "MyXafSolution.Module" -P
 i nasz peikny program powinien w winforms wygladac tak:
 
 ![image-20230714002336395](image-20230714002336395.png)
+
+
+
+
+
+## Dane początkowe
+
+
+
+W module wspolnym jest klasa do aktualizacji bazy danych o nazwie `Updater` a w niej metoda:  `UpdateDatabaseAfterUpdateSchema`
+
+
+
+wykonywana jest ona przy kazdej aktualizacji bazy danych, mozemy tam dodac dane poczatkowe dla aplikacji :
+
+```csharp
+using MySolution.Module.BusinessObjects;
+//...
+
+public class Updater : DevExpress.ExpressApp.Updating.ModuleUpdater {
+    //...
+    public override void UpdateDatabaseAfterUpdateSchema() {
+        base.UpdateDatabaseAfterUpdateSchema();
+
+        Employee employeeMary = ObjectSpace.FirstOrDefault<Employee>(x => x.FirstName == "Mary" && x.LastName == "Tellitson");
+        if(employeeMary == null) {
+            employeeMary = ObjectSpace.CreateObject<Employee>();
+            employeeMary.FirstName = "Mary";
+            employeeMary.LastName = "Tellitson";
+            employeeMary.Email = "tellitson@example.com";
+            employeeMary.Birthday = new DateTime(1980, 11, 27);
+        }
+
+        ObjectSpace.CommitChanges(); //Uncomment this line to persist created object(s).
+    }
+}
+```
+
+
+
+powiązane linki, ktore moga byc przydatne:
+
+[Data Seeding - EF Core | Microsoft Learn](https://learn.microsoft.com/en-us/ef/core/modeling/data-seeding)
+
+
+
+mozna uzyc generatora danych testowych https://github.com/bchavez/Bogus
+
+
+
+```csharp
+    public override void UpdateDatabaseAfterUpdateSchema()
+    {
+        base.UpdateDatabaseAfterUpdateSchema();
+
+        var empFaker = new Faker<Employee>("pl")
+            .CustomInstantiator(f => ObjectSpace.CreateObject<Employee>())
+            .RuleFor(o => o.LastName, f => f.Person.FirstName)
+            .RuleFor(o => o.FirstName, f => f.Person.LastName)
+            .RuleFor(o => o.Email, (f, c) => f.Internet.Email());
+        empFaker.Generate(100);
+        ObjectSpace.CommitChanges(); //This line persists created object(s).
+    }
+```
+
+tu przyklad dla innej klasy:
+
+```csharp
+            var cusFaker = new Faker<Customer>("pl")
+                .CustomInstantiator(f => ObjectSpace.CreateObject<Customer>())
+
+                .RuleFor(o => o.Notes, f => f.Company.CatchPhrase())
+                .RuleFor(o => o.CustomerName, f => f.Company.CompanyName())
+                .RuleFor(o => o.Segment, f => f.PickRandom<Segment>())
+                .RuleFor(o => o.City, f => f.Address.City())
+                .RuleFor(o => o.PostalCode, f => f.Address.ZipCode())
+                .RuleFor(o => o.Street, f => f.Address.StreetName())
+                .RuleFor(o => o.Phone, f => f.Person.Phone)
+                .RuleFor(o => o.Email, (f, c) => f.Internet.Email());
+            cusFaker.Generate(100);
+            ObjectSpace.CommitChanges(); //This line persists created object(s).
+```
+
+
+
+
+
+
+
+## Relacja Many To Many
+
+
+
+dodajemy liste zadan, Task jest zajete wiec uyjmy DemoTask
+
+
+
+```csharp
+using DevExpress.ExpressApp.Model;
+using DevExpress.Persistent.Base;
+using DevExpress.Persistent.BaseImpl.EF;
+using DevExpress.ExpressApp.DC;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel;
+
+namespace MySolution.Module.BusinessObjects
+{
+    [DefaultClassOptions]
+    //Use this attribute to define the name of the objects of this type in the user interface.
+    [ModelDefault("Caption", "Task")]
+    public class DemoTask : BaseObject
+    {
+        public virtual DateTime? DateCompleted { get; set; }
+
+        public virtual String Subject { get; set; }
+
+        [FieldSize(FieldSizeAttribute.Unlimited)]
+        public virtual String Description { get; set; }
+
+        public virtual DateTime? DueDate { get; set; }
+
+        public virtual DateTime? StartDate { get; set; }
+
+        public virtual int PercentCompleted { get; set; }
+
+        private TaskStatus status;
+
+        public virtual TaskStatus Status
+        {
+            get { return status; }
+            set
+            {
+                status = value;
+                if (isLoaded)
+                {
+                    if (value == TaskStatus.Completed)
+                    {
+                        DateCompleted = DateTime.Now;
+                    }
+                    else
+                    {
+                        DateCompleted = null;
+                    }
+                }
+            }
+        }
+
+        [Action(ImageName = "State_Task_Completed")]
+        public void MarkCompleted()
+        {
+            Status = TaskStatus.Completed;
+        }
+
+        private bool isLoaded = false;
+        public override void OnLoaded()
+        {
+            isLoaded = true;
+        }
+
+     }
+     public enum TaskStatus
+     {
+         [ImageName("State_Task_NotStarted")]
+         NotStarted,
+         [ImageName("State_Task_InProgress")]
+         InProgress,
+         [ImageName("State_Task_WaitingForSomeoneElse")]
+         WaitingForSomeoneElse,
+         [ImageName("State_Task_Deferred")]
+         Deferred,
+         [ImageName("State_Task_Completed")]
+         Completed
+     }
+}
+```
+
+
+
+i relacje do pracownikow i odwrotna relacje w pracownikach:
+
+
+
+```
+// ...
+using System.Collections.ObjectModel;
+
+namespace MySolution.Module.BusinessObjects
+{
+    [DefaultClassOptions]
+    //Use this attribute to define the name of the objects of this type in the user interface.
+    [ModelDefault("Caption", "Task")]
+    public class DemoTask : BaseObject
+    {
+        // ...
+        public virtual IList<Employee> Employees { get; set; } = new ObservableCollection<Employee>();
+
+    }
+    // ...
+}
+```
+
