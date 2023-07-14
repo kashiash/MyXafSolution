@@ -504,22 +504,65 @@ i relacje do pracownikow i odwrotna relacje w pracownikach:
 
 
 
-```
-// ...
-using System.Collections.ObjectModel;
+```csharp
 
-namespace MySolution.Module.BusinessObjects
-{
-    [DefaultClassOptions]
-    //Use this attribute to define the name of the objects of this type in the user interface.
-    [ModelDefault("Caption", "Task")]
     public class DemoTask : BaseObject
     {
         // ...
         public virtual IList<Employee> Employees { get; set; } = new ObservableCollection<Employee>();
 
     }
-    // ...
+
+```
+
+
+
+
+
+```csharp
+public class Employee : BaseObject {
+    public Employee() {
+        //...
+        public virtual IList<DemoTask> DemoTasks { get; set; } = new ObservableCollection<DemoTask>();
+    }
+    //...
+}
+```
+
+
+
+
+
+niesmiertelna migracja
+
+```
+add-migration MyInitialMigrationNameXMTM -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.Module"
+
+update-database -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.Module"
+```
+
+
+
+## Relacja 1: Many
+
+dodajemy kolejna klase:
+
+```csharp
+using DevExpress.Persistent.Base;
+using DevExpress.Persistent.BaseImpl.EF;
+using System.ComponentModel;
+
+namespace MySolution.Module.BusinessObjects
+{
+    [DefaultClassOptions]
+    [DefaultProperty(nameof(Title))]
+    public class Department : BaseObject
+    {
+        public virtual string Title { get; set; }
+
+        public virtual string Office { get; set; }
+
+    }
 }
 ```
 

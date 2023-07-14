@@ -60,6 +60,7 @@ public class Employee : BaseObject
     public virtual string Notes { get; set; }
 
     public virtual IList<DemoTask> DemoTasks { get; set; } = new ObservableCollection<DemoTask>();
+    public virtual Department Department { get; set; }
 
 }
 public enum TitleOfCourtesy

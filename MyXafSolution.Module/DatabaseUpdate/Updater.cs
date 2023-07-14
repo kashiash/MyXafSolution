@@ -21,6 +21,8 @@ public class Updater : ModuleUpdater
     {
         base.UpdateDatabaseAfterUpdateSchema();
 
+
+
         var empFaker = new Faker<Employee>("pl")
             .CustomInstantiator(f => ObjectSpace.CreateObject<Employee>())
             .RuleFor(o => o.LastName, f => f.Person.FirstName)
