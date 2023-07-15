@@ -1149,13 +1149,11 @@ Aby uzyskać więcej informacji na temat wyświetlania widoku w osobnym oknie, o
 
 
 
-## PopupWindowAction
+## Popup Window Action
 
 
 
-
-
-Dodajmy nową klasę Note:
+Dodajmy nową klasę `Note`:
 
 ```csharp
 using DevExpress.ExpressApp.DC;
@@ -1214,10 +1212,10 @@ public PopupNotesController() : base()
 
 
 ```csharp
-    private void ShowNotesAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e) {
-        //Create a List View for Note objects in the pop-up window.
-        e.View = Application.CreateListView(typeof(Note), true);
-    }
+private void ShowNotesAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e) {
+     //Create a List View for Note objects in the pop-up window.
+     e.View = Application.CreateListView(typeof(Note), true);
+}
 ```
 
 
@@ -1269,9 +1267,6 @@ foreach (var task in tasks)
     task.Employees.Add(GetRandomElement(emps));
     task.Employees.Add(GetRandomElement(emps));
 }
-
-
-  
 ```
 
 
@@ -1284,3 +1279,65 @@ potrzebna funkcja zwracajaca losowy element z listy:
         var emp = emps.OrderBy(x => random.Next()).Take(1).FirstOrDefault();
         return emp;
     }
+
+
+
+
+
+## Single Choice Action
+
+
+
+
+
+W tej lekcji zaimplementujemy nowy kontroler widoku (View Controller) z akcją `SingleChoiceAction`. Ta akcja umożliwi użytkownikom wybór wartości dla właściwości `Task.Priority` i `Task.Status`.
+
+Tworzymy kontroler o nazwie *TaskActionsController* (code rush: **xcv**, **xac**) i ograniczamy go do typu `DemoTask`
+
+
+
+```csharp
+public class TaskActionsController : ViewController
+{
+    public TaskActionsController() : base()
+    {
+        TargetObjectType = typeof(DemoTask);
+    }
+    ...
+}        
+```
+
+
+
+
+
+
+
+```
+public partial class TaskActionsController : ViewController {
+   private ChoiceActionItem setPriorityItem;
+   private ChoiceActionItem setStatusItem;
+   public TaskActionsController() {
+      // ...
+      setPriorityItem = 
+         new ChoiceActionItem(CaptionHelper.GetMemberCaption(typeof(DemoTask), "Priority"), null);
+      SetTaskAction.Items.Add(setPriorityItem);
+      FillItemWithEnumValues(setPriorityItem, typeof(Priority));
+
+      setStatusItem = 
+         new ChoiceActionItem(CaptionHelper.GetMemberCaption(typeof(DemoTask), "Status"), null);
+      SetTaskAction.Items.Add(setStatusItem);
+      FillItemWithEnumValues(setStatusItem, typeof(BusinessObjects.TaskStatus));
+
+   }
+   private void FillItemWithEnumValues(ChoiceActionItem parentItem, Type enumType) {
+        EnumDescriptor ed = new EnumDescriptor(enumType);
+        foreach(object current in ed.Values) {
+            ChoiceActionItem item = new ChoiceActionItem(ed.GetCaption(current), current);
+            item.ImageName = ImageLoader.Instance.GetEnumValueImageName(current);
+            parentItem.Items.Add(item);
+        }
+    }
+}
+```
+
