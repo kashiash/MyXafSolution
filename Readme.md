@@ -858,3 +858,84 @@ a w pracownikach dodajemy adres glowny i korespondencyjny:
     public virtual Address CorespondenceAddress { get; set; }
 
 }
+
+
+
+![2023-07-15_16-54-32](2023-07-15_16-54-32.gif)
+
+*Do tych adresów wrocimy niedlugo jak bede omawial rodzaje osadzenia podrzędnego view w detailview*
+
+
+
+##  jak zaimplementować właściwości, których wartości zależą od innych właściwości.
+
+W tym celu dodaj nową właściwość Manager do klasy Employee. Edytor dla tej właściwości wyświetla listę menedżerów, którzy pracują w tym samym dziale.
+
+
+
+```csharp
+using DevExpress.ExpressApp.DC;
+//...
+public class Employee : BaseObject {
+    //...
+    public virtual Employee Manager { get; set; }
+}
+```
+
+a nastepnie dodajemy mu trybut filrujący:
+
+```csharp
+using DevExpress.ExpressApp.DC;
+//...
+public class Employee : BaseObject {
+    //...
+    [DataSourceProperty("Department.Employees", DataSourcePropertyIsNullMode.SelectAll), DataSourceCriteria("Position.Title = 'Manager'")]
+    public virtual Employee Manager { get; set; }
+}
+// ...
+```
+
+
+
+
+
+W tym kodzie, atrybut **DataSourceProperty** akceptuje dwa parametry: **dataSourceProperty** i **mode**.
+
+Parametr **dataSourceProperty** to wartość łańcuchowa, która określa nazwę właściwości kolekcji używanej jako źródło danych dla List View wyświetlanej w Lookup Property Editor. W tym samouczku ustawiasz ten parametr na "Department.Employees".
+
+Parametr **mode** jest opcjonalny. Określa, jak elementy wyszukiwania są generowane, jeśli aplikacja nie może znaleźć żadnych elementów na podanej ścieżce. W tym samouczku ustawiasz go na SelectAll.
+
+Możesz również ustawić go na SelectNothing lub CustomCriteria. W przypadku tego ostatniego, musisz również użyć parametru **DataSourcePropertyIsNullCriteria**, aby określić kryteria filtrowania List View przez Lookup Property Editor docelowej właściwości.
+
+Atrybut **DataSourceCriteria** ogranicza elementy edytora wyszukiwania Manager do określonych obiektów. Dzięki filtrowi "Position.Title = 'Manager'", edytor wyszukiwania wyświetla tylko obiekty Employee, których wartość właściwości Position to "Manager".
+
+Dodaj migrację i zaktualizuj bazę danych. Szczegółowe informacje znajdziesz w następnym rozdziale: Użyj DBMS: Konfiguracja migracji.
+
+Uruchom aplikację i dokonaj następujących zmian (jak masz wpisane generowanie danych początkowych, to juz takie wpisy masz, ale dla latwiejszego zrozumienia i tak warto je uzupelnic):
+
+Dodaj obiekt Department (na przykład "Development").
+Dodaj wiele obiektów Position (na przykład "Manager", "Developer", "QA").
+Dodaj wiele obiektów Employee z ustawioną właściwością Department na "Development".
+Ustaw właściwość Position dla dwóch obiektów Employee na "Manager".
+Ustaw właściwość Position dla pozostałych obiektów Employee na "Developer".
+Utwórz nowy obiekt Employee. W widoku Employee Detail ustaw właściwość Department i rozwij edytor wyszukiwania Manager. Zauważ, że wyświetla tylko managerów z określonego działu.
+
+![image-20230715171401001](image-20230715171401001.png)
+
+
+
+
+
+inny sposób filtrowania jest opisany tutaj: https://docs.devexpress.com/eXpressAppFramework/112681/filtering/in-list-view/how-to-implement-cascading-filtering-for-lookup-list-views
+
+
+
+
+
+## Obliczane właściwości.
+
+W tym celu dodaj klasę Payment jako encję z następującymi właściwościami:
+
+Rate (właściwość trwała)
+Hours (właściwość trwała)
+Amount (właściwość nieperystentna, obliczana: Amount = Rate * Hours)

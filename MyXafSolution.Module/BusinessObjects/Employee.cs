@@ -69,6 +69,10 @@ public class Employee : BaseObject
     public virtual Address Address { get; set; }
     public virtual Address CorespondenceAddress { get; set; }
 
+    [DataSourceProperty("Department.Employees", DataSourcePropertyIsNullMode.SelectAll), DataSourceCriteria("Position.Title = 'Manager'")]
+
+    public virtual Employee Manager { get; set; }
+
 }
 public enum TitleOfCourtesy
 {
