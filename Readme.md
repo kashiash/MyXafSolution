@@ -1080,3 +1080,63 @@ private void clearTaskAction_Execute(object sender, SimpleActionExecuteEventArgs
 Ta lekcja wyjaśnia, jak dodać akcję z parametrem. Akcja z parametrem wyświetla edytor, który umożliwia użytkownikom wprowadzenie wartości parametru przed wykonaniem akcji.
 
 Poniższe instrukcje pokazują, jak dodać akcję, która wyszukuje obiekt `DemoTask` na podstawie wartości właściwości `Subject` i wyświetla widok szczegółów znalezionego obiektu.
+
+tworzymy klasę o nazwie `FindBySubjectController` (skróty **xcv** oraz **xap** są naszymi przyjaciółmi):
+
+
+
+```csharp
+public class FindBySubjectController : ViewController
+{
+   ParametrizedAction findBySubjectAction;
+   public FindBySubjectController() : base()
+    {
+       findBySubjectAction = new ParametrizedAction(this,
+                  $"{GetType().FullName}{nameof(findBySubjectAction)}",
+                  PredefinedCategory.View , typeof(string));
+       
+       findBySubjectAction.Execute += findBySubjectAction_Execute;  
+     }
+    ..
+}
+```
+
+
+
+oraz kod wykoinywany po kliknieciu:
+
+```csharp
+private void findBySubjectAction_Execute(object sender, ParametrizedActionExecuteEventArgs e)
+{
+    var objectType = ((ListView)View).ObjectTypeInfo.Type;
+    IObjectSpace objectSpace = Application.CreateObjectSpace(objectType);
+    string paramValue = e.ParameterCurrentValue as string;
+    object obj = objectSpace.FirstOrDefault<DemoTask>(task => task.Subject.Contains(paramValue));
+    if (obj != null)
+    {
+        DetailView detailView = Application.CreateDetailView(objectSpace, obj);
+        detailView.ViewEditMode = ViewEditMode.Edit;
+        e.ShowViewParameters.CreatedView = detailView;
+    }
+}
+```
+
+
+
+W XAF, używasz Object Space do zapytań i aktualizacji obiektów trwałych. Wywołaj statyczną metodę XafApplication.CreateObjectSpace, aby utworzyć Object Space.
+
+Użyj metody `IObjectSpace.FirstOrDefault<ObjectType>`, aby znaleźć obiekt typu DemoTask. Metoda ta ma następujący parametr:
+
+- Wyrażenie lambda do wyszukiwania obiektu.
+
+Tworzenie nowego widoku
+Aby wyświetlić znaleziony obiekt w osobnym widoku szczegółów:
+
+- Wywołaj metodę XafApplication.CreateDetailView, aby utworzyć widok.
+- Przypisz widok do właściwości `e.ShowViewParameters.CreatedView` parametru zdarzenia.
+
+PORADA
+
+Możesz zainicjować właściwość `ShowViewParameters` w obsłudze zdarzenia Execute dowolnej akcji dowolnego typu. Dzięki temu zawsze można wyświetlać widok po wykonaniu akcji.
+
+Aby uzyskać więcej informacji na temat wyświetlania widoku w osobnym oknie, odwołaj się do następującego tematu: Sposoby wyświetlania widoku. [Ways to Show a View | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/112803/ui-construction/views/ways-to-show-a-view/ways-to-show-a-view)
