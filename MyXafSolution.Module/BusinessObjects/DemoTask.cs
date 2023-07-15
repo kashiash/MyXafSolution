@@ -5,6 +5,7 @@ using DevExpress.ExpressApp.DC;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace MyXafSolution.Module.BusinessObjects
 {
@@ -53,6 +54,9 @@ namespace MyXafSolution.Module.BusinessObjects
         {
             Status = TaskStatus.Completed;
         }
+
+        [StringLength(4096)]
+        public virtual string Note { get; set; }
 
         private bool isLoaded = false;
         public override void OnLoaded()
