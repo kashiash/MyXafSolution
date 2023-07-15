@@ -64,7 +64,14 @@ namespace MyXafSolution.Module.BusinessObjects
             isLoaded = true;
         }
 
-        public virtual IList<Employee> Employees { get; set; } = new ObservableCollection<Employee>();
+        //    public virtual IList<Employee> Employees { get; set; } = new ObservableCollection<Employee>();
+
+        public virtual ObservableCollection<Employee> Employees { get; set; }
+
+        public DemoTask()
+        {
+            Employees = new ObservableCollection<Employee>();
+        }
 
     }
     public enum TaskStatus

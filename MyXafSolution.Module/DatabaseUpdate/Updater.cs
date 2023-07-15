@@ -77,17 +77,18 @@ public class Updater : ModuleUpdater
             .RuleFor(o=> o.Position, f=> f.PickRandom(positions))
             .RuleFor(o => o.Department, f => f.PickRandom(departments))
         ;
-        //empFaker.Generate(10);
+         var emps = empFaker.Generate(10);
 
 
         var faker = new Faker<DemoTask>()
+            .CustomInstantiator(f => ObjectSpace.CreateObject<DemoTask>())
             .RuleFor(t => t.DateCompleted, f => f.Date.Past())
             .RuleFor(t => t.Subject, f => f.Company.Random.Word())
             .RuleFor(t => t.Description, f => f.Lorem.Paragraph())
             .RuleFor(t => t.DueDate, f => f.Date.Future())
             .RuleFor(t => t.StartDate, (f,t) => f.Date.Between(t.DueDate.Value.AddDays(-7), t.DueDate.Value))
             .RuleFor(t => t.PercentCompleted, f => f.Random.Int(0, 100))
-          //  .RuleFor(t=> t.Employees, f=> empFaker.Generate(5))
+          //  .RuleFor(t=> t.Employees, f=> f.PickRandom(emps,3).())
             .RuleFor(t => t.Status, f => f.PickRandom<TaskStatus>());
 
             faker.Generate(100);
