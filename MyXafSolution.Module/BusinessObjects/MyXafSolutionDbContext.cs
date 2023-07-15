@@ -41,6 +41,7 @@ public class MyXafSolutionEFCoreDbContext : DbContext {
     public DbSet<Department> Departments { get; set; }
     public DbSet<PhoneNumber> PhoneNumbers { get; set; }
     public DbSet<Position> Positions { get; set; }
+    public DbSet<Payment> Payments { get; set; }
     public DbSet<Note> Notes { get; set; }
     public DbSet<ReportDataV2> ReportDataV2 { get; set; }
 

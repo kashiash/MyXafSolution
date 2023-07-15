@@ -1,3 +1,5 @@
+
+
 # Aplikacja XAF z EF Pierwsza krew
 
 
@@ -1313,7 +1315,7 @@ public class TaskActionsController : ViewController
 
 
 
-```
+```csharp
 public partial class TaskActionsController : ViewController {
    private ChoiceActionItem setPriorityItem;
    private ChoiceActionItem setStatusItem;
@@ -1341,3 +1343,277 @@ public partial class TaskActionsController : ViewController {
 }
 ```
 
+Przykład kodu powyżej organizuje elementy z kolekcji Items akcji jako drzewo:
+
+Poziom główny zawiera elementy, których podpisy odpowiadają nazwom właściwości DemoTask.Priority i DemoTask.Status. Obiekt CaptionHelper zwraca podpisy elementów.
+Poziom zagnieżdżony zawiera wartości enumeracji Priority i Status. Obiekt EnumDescriptor zwraca podpisy elementów.
+
+Jeśli wypełniasz kolekcję `ChoiceActionBase.Items` w konstruktorze kontrolera, jak pokazano w powyższym kodzie, możesz użyć w Model Editorze węzła ActionDesign | Actions | <Action> | ChoiceActionItems, aby ustawić nazwę obrazka, skrót klawiaturowy i zlokalizowany podpis dla dodanych elementów.
+
+Jeśli wypełniasz kolekcję `Items` w obsłudze zdarzenia `Controller.Activated`, Model Editor nie wczytuje elementów. W tym przypadku będziesz musiał ręcznie zdefiniować elementy w Model Editorze lub dynamicznie wypełnić je programowo za pomocą innych metod, na przykład osobnej metody lub odczytu z innych źródeł konfiguracyjnych.
+
+
+
+W tym samouczku wartości enumeracji mają atrybuty ImageNameAttribute, które służą do ustawienia obrazów dla tych wartości w interfejsie użytkownika.
+
+XAF dostarcza standardową bibliotekę obrazów. Biblioteka zawiera obrazy State_Priority_Low, State_Priority_Normal i State_Priority_High, które są używane w tej lekcji.
+
+```csharp
+public enum Priority {
+    [ImageName("State_Priority_Low")]
+    Low,
+    [ImageName("State_Priority_Normal")]
+    Normal,
+    [ImageName("State_Priority_High")]
+    High
+}
+```
+
+```csharp
+ [ModelDefault("Caption", "Task")]
+ public class DemoTask : BaseObject
+    {
+...
+        public virtual bool IsCompleted { get; set; } // przyda sie juz za chwile
+        public virtual Priority Priority { get; set; }
+
+...
+}
+```
+
+```csharp
+//...
+using System.Collections;
+
+public partial class TaskActionsController : ViewController {
+    // ...
+    public TaskActionsController() {
+        // ...
+        SetTaskAction.Execute += SetTaskAction_Execute;
+    }    
+    private void SetTaskAction_Execute(object sender, SingleChoiceActionExecuteEventArgs e) {
+        /*Create a new ObjectSpace if the Action is used in List View.
+          Use this ObjectSpace to manipulate the View's selected objects.*/
+        IObjectSpace objectSpace = View is ListView ?
+            Application.CreateObjectSpace(typeof(DemoTask)) : View.ObjectSpace;
+        ArrayList objectsToProcess = new ArrayList(e.SelectedObjects);
+        if(e.SelectedChoiceActionItem.ParentItem == setPriorityItem) {
+            foreach(Object obj in objectsToProcess) {
+                DemoTask objInNewObjectSpace = (DemoTask)objectSpace.GetObject(obj);
+                objInNewObjectSpace.Priority = (Priority)e.SelectedChoiceActionItem.Data;
+            }
+        } else
+            if(e.SelectedChoiceActionItem.ParentItem == setStatusItem) {
+            foreach(Object obj in objectsToProcess) {
+                DemoTask objInNewObjectSpace = (DemoTask)objectSpace.GetObject(obj);
+                objInNewObjectSpace.Status = (BusinessObjects.TaskStatus)e.SelectedChoiceActionItem.Data;
+            }
+        }
+        objectSpace.CommitChanges();
+        View.ObjectSpace.Refresh();
+    }
+}
+```
+
+Przykład kodu powyżej organizuje elementy z kolekcji Items akcji jako drzewo:
+
+Poziom główny zawiera elementy, których podpisy odpowiadają nazwom właściwości DemoTask.Priority i DemoTask.Status. Obiekt CaptionHelper zwraca podpisy elementów.
+Poziom zagnieżdżony zawiera wartości enumeracji Priority i Status. Obiekt EnumDescriptor zwraca podpisy elementów.
+
+Akcja dodawana jako atrybut
+
+### Simple Action
+
+```csharp
+
+[DefaultClassOptions]
+[ModelDefault("Caption", "Task")]
+public class DemoTask : BaseObject {
+    // ...
+    /* Use this attribute to display the Postpone button in the UI
+    and call the Postpone() method when a user clicks this button*/
+    [Action(ToolTip = "Postpone the task to the next day", Caption = "Postpone")]
+    // Shift the task's due date forward by one day
+    public void Postpone() {
+        if(DueDate == DateTime.MinValue) {
+            DueDate = DateTime.Now;
+        }
+        DueDate = DueDate + TimeSpan.FromDays(1);
+    }
+}
+```
+
+i drugą zamykająca zadanie:
+
+
+
+```csharp
+[Action(Caption="Complete", TargetObjectsCriteria = "Not [IsCompleted]")]
+public void Complete() {
+    IsCompleted = true;
+}
+```
+
+
+
+### Popup Window Action:
+
+
+
+dodajmy nowe pola do klasy Task:
+
+```csharp
+using DevExpress.ExpressApp.Model;
+// ...
+
+public virtual DateTime? Deadline { get; set; }
+
+[FieldSize(FieldSizeAttribute.Unlimited),ModelDefault("AllowEdit", "False")]
+public virtual string Comments { get; set; }
+
+// Make sure that you use options.UseChangeTrackingProxies() in your DbContext settings.
+```
+
+
+
+stworzmy klasę opisujaca okno popup :
+
+```csharp
+using DevExpress.ExpressApp.DC;
+// ...
+[DomainComponent]
+public class PostponeParametersObject {
+    public PostponeParametersObject() { PostponeForDays = 1; }
+    public uint PostponeForDays { get; set; }
+    [FieldSize(FieldSizeAttribute.Unlimited)]
+    public string Comment { get; set; }
+}
+```
+
+i stwórzmy metode ktora jako parametru uzyje obiektu powyższej klasy i dodajmy atrybut, ze jest to akcja
+
+```csharp
+[Action(Caption = "Postpone",
+    TargetObjectsCriteria = "[Deadline] Is Not Null And Not [IsCompleted]")]
+public void Postpone(PostponeParametersObject parameters) {
+    if (Deadline.HasValue && !IsCompleted && (parameters.PostponeForDays > 0)) {
+        Deadline += TimeSpan.FromDays(parameters.PostponeForDays);
+        Comments += String.Format("Postponed for {0} days, new deadline is {1:d}\r\n{2}\r\n",
+        parameters.PostponeForDays, Deadline, parameters.Comment);
+    }
+}
+```
+
+
+
+# Cześć druga - dostosowanie interfejsu:
+
+
+
+wiekszosc jest pokazana tutaj, [Customize Data Display and View Layout | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/402126/getting-started/in-depth-tutorial-blazor/customize-data-display-and-view-layout)
+
+[Detail View Layout Customization | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/112817/ui-construction/views/layout/view-items-layout-customization)
+
+
+
+
+
+## Filtrowanie
+
+
+
+możemy przy każdej klasie zdefiniować filtry predefiniowane - gotowe do użycia, za pomocą atrybutu `ListViewFilter`: 
+
+```csharp
+using DevExpress.ExpressApp.Model;
+using DevExpress.ExpressApp.SystemModule;
+//...
+[DefaultClassOptions]
+[ListViewFilter("Today", "GetDate([DueDate]) = LocalDateTimeToday()")]
+[ListViewFilter("In three days", @"[DueDate] >= ADDDAYS(LocalDateTimeToday(), -3) AND 
+    [DueDate] < LocalDateTimeToday()")]
+[ListViewFilter("In two weeks", @"[DueDate] >= ADDDAYS(LocalDateTimeToday(), -14) AND 
+    [DueDate] < LocalDateTimeToday()")]
+[ListViewFilter("The last week", @"GetDate([DueDate]) > LocalDateTimeLastWeek() AND 
+    GetDate([DueDate]) <= ADDDAYS(LocalDateTimeLastWeek(), 5)")]
+[ListViewFilter("This week", @"GetDate([DueDate]) > LocalDateTimeThisWeek() AND 
+    GetDate([DueDate]) <= ADDDAYS(LocalDateTimeThisWeek(), 5)")]
+public class Task : BaseObject {
+    [ModelDefault("EditMask","d")]
+    public virtual DateTime DueDate { get; set; }
+}
+
+// Make sure that you use options.UseChangeTrackingProxies() in your DbContext settings.
+```
+
+
+
+Filtry określone za pomocą atrybutu ListView Filter są dodawane do wszystkich automatycznie generowanych węzłów ListView, których atrybut ModelClass jest ustawiony na klasę, do której jest stosowany atrybut. Atrybut nie dodaje filtrów do węzłów, które są tworzone ręcznie lub klonowane w Model Editorze. Akcja SetFilter jest aktywowana dla root i zagnieżdżonych List Views, ponieważ tylko szablony MainForm i DetailViewForm dla platformy Windows Forms oraz domyślny szablon dla platformy ASP.NET Web Forms zawierają kontener Filters Action Container, który wyświetla tę akcję.
+
+
+
+### Filtrowanie kaskadowe
+
+[How to: Implement Cascading Filtering for Lookup List Views | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/112681/filtering/in-list-view/how-to-implement-cascading-filtering-for-lookup-list-views)
+
+
+
+
+
+### Grupowanie danych na liscie
+
+[Group List View Data | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/403248/getting-started/in-depth-tutorial-blazor/customize-data-display-and-view-layout/group-list-view-data?p=netframework)
+
+
+
+
+
+
+
+# Moduły dodatkowe
+
+
+
+## Security System
+
+
+
+[Use the Security System | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/404204/getting-started/in-depth-tutorial-blazor/enable-additional-modules/use-the-security-system)
+
+
+
+## Value Validation
+
+[Implement Property Value Validation | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/402980/getting-started/in-depth-tutorial-blazor/enable-additional-modules/implement-property-value-validation)
+
+
+
+## Conditional Apearance
+
+
+
+[Highlight Property Editors | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/404205/getting-started/in-depth-tutorial-blazor/enable-additional-modules/highlight-list-view-objects)
+
+
+
+## Attach Filers to Objects
+
+
+
+[Attach Files to Objects | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/403288/getting-started/in-depth-tutorial-blazor/enable-additional-modules/attach-files-to-objects)
+
+
+
+
+
+## Reports
+
+
+
+[Create and Preview a Report | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/404206/getting-started/in-depth-tutorial-blazor/enable-additional-modules/create-a-report-in-visual-studio)
+
+
+
+# REST Backend / Web API Service
+
+[.NET 6+ REST Backend / Web API Service | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/404218/getting-started/net-6-rest-backend-web-api-service)
