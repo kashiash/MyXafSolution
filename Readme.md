@@ -2,6 +2,10 @@
 
 
 
+
+
+## Wstęp
+
 Notatki z walki z tutorialem : 
 
 [In-Depth .NET 6+ WinForms & Blazor UI Tutorial (Employee Manager) | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/402125/getting-started/in-depth-tutorial-blazor)
@@ -939,3 +943,140 @@ W tym celu dodaj klasę Payment jako encję z następującymi właściwościami:
 Rate (właściwość trwała)
 Hours (właściwość trwała)
 Amount (właściwość nieperystentna, obliczana: Amount = Rate * Hours)
+
+
+
+
+
+```csharp
+
+[DefaultClassOptions]
+public class Payment : BaseObject
+{
+    //Use this attribute to specify the display format pattern for the property value.
+    [ModelDefault("DisplayFormat", "{0:c}")]
+    public virtual double Rate { get; set; }
+    public virtual double Hours { get; set; }
+
+    //Use this attribute to exclude the property from database mapping.
+    [NotMapped]
+    [ModelDefault("DisplayFormat", "{0:c}")]
+    public double Amount
+    {
+        get { return Rate * Hours; }
+    }
+
+}
+```
+
+zarejestruj nową klasę :
+
+```csharp
+public class MySolutionEFCoreDbContext : DbContext {
+    //...
+    public DbSet<Payment> Payments { get; set; }
+}
+```
+
+przeprowadź migracje  i uruchom program
+
+
+
+
+
+
+
+##  SimpleAction - przyciski, które wykonują niestandardowy kod po kliknięciu przez użytkownika.
+
+Poniższe instrukcje pokazują, jak dodać przycisk "Clear tasks" do widoku szczegółów pracownika. Po kliknięciu tego przycisku wyczyszczone zostaną wszystkie śledzone zadania wybranego pracownika.
+
+**Uwaga przed kolejnymi krokami upewnij się ze masz zainstalowane CodeRush w VisualStudio** . Więcej o skrótach CodeRush [XAF Templates | CodeRush | DevExpress Documentation](https://docs.devexpress.com/CodeRushForRoslyn/403133/coding-assistance/code-templates/xaf-templates)
+
+w Module wspólnym w katalogu `Controllers` dodajmy nowa klasę i nazwijmy ją `TasksController`
+
+skopiujmy do schowka nazwę **TaskControler**, skasujmy wygenerowaną definicje klasy i wpiszmy **xcv** + spacja następnie zmieńmy nazwę zaproponowanej klasy na ta co mamy w schowku :CtrlV i Enter :
+
+![2023-07-15_17-30-11](2023-07-15_17-30-11.gif)
+
+włala ... mamy definicje kontrolera.
+
+*Na stronie devexpres przy tutorialu mamy inna metode, ktorą tez warto znać :*
+
+*[Add a Simple Action | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/402157/getting-started/in-depth-tutorial-blazor/add-actions-menu-commands/add-a-simple-action)*
+
+
+
+teraz musimy wskazać ze ten kontroler ma być wywoływany na `DetailView` tylko dla klasy `Employee`
+
+```csharp
+    public class TasksController : ViewController
+    {
+        public TasksController() : base()
+        {
+            // Target required Views (use the TargetXXX properties) and create their Actions.
+            TargetViewType = ViewType.DetailView;
+            //Specify the type of objects that can use the Controller
+            TargetObjectType = typeof(Employee);
+        }
+        ...
+    }
+```
+
+Jeśli nie określisz właściwości `TargetObjectType`, aplikacja wyświetli akcje kontrolera dla wszystkich widoków szczegółowych.
+
+PORADA
+
+Możesz również utworzyć ogólny obiekt `ViewController<ViewType>` lub `ObjectViewController<ViewType, ObjectType>` i określić typ docelowy jako parametr `ViewType`. Aby uzyskać więcej informacji na temat dostosowywania funkcjonalności kontrolera, odwołaj się do następującego tematu: Definiowanie zakresu kontrolerów i akcji. https://docs.devexpress.com/eXpressAppFramework/113103/ui-construction/controllers-and-actions/define-the-scope-of-controllers-and-actions
+
+Dodaj nową akcję do kontrolera oraz obsługę zdarzenia Execute dla tej akcji. Oczywiście użyjemy do tego skrótów CodeRush:
+
+umieśćmy kursor w konstruktorze kontrolera i wpiszmy **xas** + Spacja:
+
+![2023-07-15_18-01-42](2023-07-15_18-01-42.gif)
+
+Uwaga: definiując akcje należy podać jej unikalna nazwę - inaczej podczas uruchomienia aplikacji dostaniemy info ze nazwy sa zdublowane. W małych projektach wystarczy, że ponazywamy te akcje "na sztywno" i bedziemy pamietac jakie nazwy nadalismy. Jednak w dużych warto zadbać o to by nie musieć miec tych nazw w glowie i pilnowac ich unikalnosci - stad wyrażenie `$"{GetType().FullName}{nameof(clearTaskAction)}"`, ono zapewni nam unikalność nazw wszystkich akcji
+
+
+
+```csharp
+  clearTaskAction = new SimpleAction(this, $"{GetType().FullName}{nameof(clearTaskAction)}", PredefinedCategory.View); 
+```
+
+
+
+resztę musimy dopisac recznie: 
+
+```csharp
+//definicja akcji:
+clearTaskAction = new SimpleAction(this,
+    $"{GetType().FullName}{nameof(clearTaskAction)}", PredefinedCategory.View) {
+    //Specify the Action's button caption.
+    Caption = "Clear tasks",
+    //Specify the confirmation message that pops up when a user executes an Action.
+    ConfirmationMessage = "Are you sure you want to clear the Tasks list?",
+    //Specify the icon of the Action's button in the interface.
+     ImageName = "Action_Clear"
+ };
+ clearTaskAction.Execute += clearTaskAction_Execute;
+
+// kod czyszczący zadania:
+private void clearTaskAction_Execute(object sender, SimpleActionExecuteEventArgs e)
+{
+   while (((Employee)View.CurrentObject).DemoTasks.Count > 0)
+   {
+      ((Employee)View.CurrentObject).DemoTasks.Remove(((Employee)View.CurrentObject).DemoTasks[0]);
+      ObjectSpace.SetModified(View.CurrentObject, 		       
+             View.ObjectTypeInfo.FindMember(nameof(Employee.DemoTasks)));
+   }
+}
+```
+
+
+
+
+
+## Parametrized Action
+
+Ta lekcja wyjaśnia, jak dodać akcję z parametrem. Akcja z parametrem wyświetla edytor, który umożliwia użytkownikom wprowadzenie wartości parametru przed wykonaniem akcji.
+
+Poniższe instrukcje pokazują, jak dodać akcję, która wyszukuje obiekt `DemoTask` na podstawie wartości właściwości `Subject` i wyświetla widok szczegółów znalezionego obiektu.
