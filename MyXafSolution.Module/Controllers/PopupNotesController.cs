@@ -29,13 +29,22 @@ namespace MyXafSolution.Module.Controllers
         }
         private void showNotesAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
         {
-            var selectedPopupWindowObjects = e.PopupWindowViewSelectedObjects;
-            var selectedSourceViewObjects = e.SelectedObjects;
-            // Execute your business logic (https://docs.devexpress.com/eXpressAppFramework/112723/).
+            DemoTask task = (DemoTask)View.CurrentObject;
+            foreach (Note note in e.PopupWindowViewSelectedObjects)
+            {
+                if (!string.IsNullOrEmpty(task.Description))
+                {
+                    task.Description += Environment.NewLine;
+                }
+                // Add selected note texts to a Task's description
+                task.Description += note.Text;
+            }
+            View.ObjectSpace.CommitChanges();
         }
         private void showNotesAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)
         {
-            // Set the e.View parameter to a newly created view (https://docs.devexpress.com/eXpressAppFramework/112723/).
+            //Create a List View for Note objects in the pop-up window.
+            e.View = Application.CreateListView(typeof(Note), true);
         }
         protected override void OnActivated()
         {
