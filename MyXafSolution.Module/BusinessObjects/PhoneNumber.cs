@@ -1,7 +1,7 @@
 ﻿using DevExpress.Persistent.BaseImpl.EF;
 using System.ComponentModel;
 
-namespace MySolution.Module.BusinessObjects;
+namespace MyXafSolution.Module.BusinessObjects;
 
 [DefaultProperty(nameof(Number))]
 public class PhoneNumber : BaseObject

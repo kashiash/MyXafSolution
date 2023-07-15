@@ -543,7 +543,7 @@ update-database -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.M
 
 
 
-## Relacja 1: Many
+## Relacja One To Many
 
 dodajemy kolejną klasę:
 
@@ -610,14 +610,10 @@ public class Department : baseObject {
 stanadard z migracją: 
 
 ```
-PM> add-migration MyInitialMigrationNameXOTM -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.Module"
-Build started...
-Build succeeded.
-To undo this action, use Remove-Migration.
-PM> update-database -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.Module"
-Build started...
-Build succeeded.
-Applying migration '20230714110706_MyInitialMigrationNameXOTM'.
+ add-migration MyInitialMigrationNameXOTM -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.Module"
+
+ update-database -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.Module"
+
 ```
 
 
@@ -692,15 +688,7 @@ public class MyXafSolutionEFCoreDbContext : DbContext {
 	public MyXafSolutionEFCoreDbContext(DbContextOptions<MyXafSolutionEFCoreDbContext> options) : base(options) {
 	}
     ...
-    public DbSet<Employee> Employees { get; set; }
-    public DbSet<DemoTask> DemoTasks { get; set; }
-    public DbSet<Department> Departments { get; set; }
-    
     public DbSet<PhoneNumber> PhoneNumbers { get; set; }
-    
-    
-    public DbSet<ReportDataV2> ReportDataV2 { get; set; }
-
     ...
     }
 }
@@ -714,3 +702,159 @@ PM> add-migration MyInitialMigrationNameXOTM3 -StartupProject "MyXafSolution.Mod
 PM> update-database -StartupProject "MyXafSolution.Module" -Project "MyXafSolution.Module"
 ```
 
+
+
+Dodajemy klase Stanowisko :
+
+```csharp
+
+    [DefaultClassOptions]
+    [DefaultProperty(nameof(Title))]
+    public class Position : BaseObject
+    {
+        public virtual string Title { get; set; }
+    }
+
+```
+
+rejestrujemy tą klasę:
+
+
+
+```csharp
+public class MySolutionEFCoreDbContext : DbContext {
+    //...
+    public DbSet<Position> Positions { get; set; } 
+}
+```
+
+
+
+i dodajemy ją w pracowniku:
+
+
+
+```csharp
+//...
+using System.Collections.ObjectModel;
+
+namespace MySolution.Module.BusinessObjects;
+
+[DefaultClassOptions]
+public class Employee : BaseObject {
+    //...
+    public virtual Position Position { get; set; }
+}
+```
+
+
+
+w Updater.cs dodajmy kod ktory bedzie dodawal nam dzialy i stanowiska i przypisywal je do nowodanych pracownikow 
+
+
+
+```csharp
+        Department sales = ObjectSpace.FirstOrDefault<Department>(x => x.Title == "Sales");
+        if (sales == null)
+        {
+            sales = ObjectSpace.CreateObject<Department>();
+            sales.Title = "Developer";
+        }
+        Department quality = ObjectSpace.FirstOrDefault<Department>(x => x.Title == "Quality And Assurance");
+        if (quality == null)
+        {
+            quality = ObjectSpace.CreateObject<Department>();
+            quality.Title = "Quality And Assurance";
+        }
+        Department randd = ObjectSpace.FirstOrDefault<Department>(x => x.Title == "Research And Development");
+        if (randd == null)
+        {
+            randd = ObjectSpace.CreateObject<Department>();
+            randd.Title = "Research And Development";
+        }
+
+        List<Department> departments = new List<Department> { randd, quality, sales };
+
+
+        Position developer = ObjectSpace.FirstOrDefault<Position>(x => x.Title == "Developer" );
+        if (developer == null)
+        {
+            developer = ObjectSpace.CreateObject<Position>();
+            developer.Title = "Developer";
+        }
+
+        Position manager = ObjectSpace.FirstOrDefault<Position>(x => x.Title == "Manager");
+        if (manager == null)
+        {
+            manager = ObjectSpace.CreateObject<Position>();
+            manager.Title = "Manager";
+        }
+
+        Position tester = ObjectSpace.FirstOrDefault<Position>(x => x.Title == "Tester");
+        if (tester == null)
+        {
+            tester = ObjectSpace.CreateObject<Position>();
+            tester.Title = "tester";
+        }
+
+        List<Position> positions = new List<Position> { developer,manager , tester };
+
+        var empFaker = new Faker<Employee>("pl")
+            .CustomInstantiator(f => ObjectSpace.CreateObject<Employee>())
+            .RuleFor(o => o.LastName, f => f.Person.FirstName)
+            .RuleFor(o => o.FirstName, f => f.Person.LastName)
+            .RuleFor(o => o.TitleOfCourtesy, f => f.PickRandom<TitleOfCourtesy>())
+            .RuleFor(o => o.Email, (f, c) => f.Person.Email)
+
+            .RuleFor(o=> o.Postion, f=> f.PickRandom(positions))
+            .RuleFor(o => o.Department, f => f.PickRandom(departments))
+        ;
+        empFaker.Generate(10);
+        ObjectSpace.CommitChanges(); //This line persists created object(s).
+```
+
+
+
+
+
+teraz dodajemy adresy:
+
+
+
+```csharp
+using DevExpress.Persistent.Base;
+using DevExpress.Persistent.BaseImpl.EF;
+using System.ComponentModel;
+
+namespace MyXafSolution.Module.BusinessObjects;
+
+[DefaultProperty(nameof(FullAddress))]
+public class Address : BaseObject
+{
+    private const string defaultFullAddressFormat = "{Country}; {StateProvince}; {City}; {Street}; {ZipPostal}";
+
+    public virtual String Street { get; set; }
+
+    public virtual String City { get; set; }
+
+    public virtual String StateProvince { get; set; }
+
+    public virtual String ZipPostal { get; set; }
+
+    public virtual String Country { get; set; }
+
+    public String FullAddress
+    {
+        get { return ObjectFormatter.Format(defaultFullAddressFormat, this, EmptyEntriesMode.RemoveDelimiterWhenEntryIsEmpty); }
+    }
+}
+```
+
+
+
+a w pracownikach dodajemy adres glowny i korespondencyjny:
+
+    public virtual Address Address { get; set; }
+    public virtual Address CorespondenceAddress { get; set; }
+
+}

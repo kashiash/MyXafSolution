@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyXafSolution.Module.BusinessObjects;
 
@@ -11,9 +12,11 @@ using MyXafSolution.Module.BusinessObjects;
 namespace MyXafSolution.Module.Migrations
 {
     [DbContext(typeof(MyXafSolutionEFCoreDbContext))]
-    partial class MyXafSolutionEFCoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230715120202_MyInitialMigrationNameXOTM4")]
+    partial class MyInitialMigrationNameXOTM4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,33 +72,7 @@ namespace MyXafSolution.Module.Migrations
                     b.ToTable("ReportDataV2");
                 });
 
-            modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.Address", b =>
-                {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StateProvince")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Street")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ZipPostal")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("Address");
-                });
-
-            modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.DemoTask", b =>
+            modelBuilder.Entity("MySolution.Module.BusinessObjects.DemoTask", b =>
                 {
                     b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
@@ -127,7 +104,7 @@ namespace MyXafSolution.Module.Migrations
                     b.ToTable("DemoTasks");
                 });
 
-            modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.Department", b =>
+            modelBuilder.Entity("MySolution.Module.BusinessObjects.Department", b =>
                 {
                     b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
@@ -144,20 +121,14 @@ namespace MyXafSolution.Module.Migrations
                     b.ToTable("Departments");
                 });
 
-            modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.Employee", b =>
+            modelBuilder.Entity("MySolution.Module.BusinessObjects.Employee", b =>
                 {
                     b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AddressID")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("Birthday")
                         .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CorespondenceAddressID")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("DepartmentID")
                         .HasColumnType("uniqueidentifier");
@@ -178,9 +149,6 @@ namespace MyXafSolution.Module.Migrations
                         .HasMaxLength(4096)
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("PositionID")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("TitleOfCourtesy_Int")
                         .HasColumnType("int");
 
@@ -189,18 +157,12 @@ namespace MyXafSolution.Module.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("AddressID");
-
-                    b.HasIndex("CorespondenceAddressID");
-
                     b.HasIndex("DepartmentID");
-
-                    b.HasIndex("PositionID");
 
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.PhoneNumber", b =>
+            modelBuilder.Entity("MySolution.Module.BusinessObjects.PhoneNumber", b =>
                 {
                     b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
@@ -222,7 +184,7 @@ namespace MyXafSolution.Module.Migrations
                     b.ToTable("PhoneNumbers");
                 });
 
-            modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.Position", b =>
+            modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.Dupa", b =>
                 {
                     b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
@@ -238,61 +200,43 @@ namespace MyXafSolution.Module.Migrations
 
             modelBuilder.Entity("DemoTaskEmployee", b =>
                 {
-                    b.HasOne("MyXafSolution.Module.BusinessObjects.DemoTask", null)
+                    b.HasOne("MySolution.Module.BusinessObjects.DemoTask", null)
                         .WithMany()
                         .HasForeignKey("DemoTasksID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyXafSolution.Module.BusinessObjects.Employee", null)
+                    b.HasOne("MySolution.Module.BusinessObjects.Employee", null)
                         .WithMany()
                         .HasForeignKey("EmployeesID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.Employee", b =>
+            modelBuilder.Entity("MySolution.Module.BusinessObjects.Employee", b =>
                 {
-                    b.HasOne("MyXafSolution.Module.BusinessObjects.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressID");
-
-                    b.HasOne("MyXafSolution.Module.BusinessObjects.Address", "CorespondenceAddress")
-                        .WithMany()
-                        .HasForeignKey("CorespondenceAddressID");
-
-                    b.HasOne("MyXafSolution.Module.BusinessObjects.Department", "Department")
+                    b.HasOne("MySolution.Module.BusinessObjects.Department", "Department")
                         .WithMany("Employees")
                         .HasForeignKey("DepartmentID");
 
-                    b.HasOne("MyXafSolution.Module.BusinessObjects.Position", "Position")
-                        .WithMany()
-                        .HasForeignKey("PositionID");
-
-                    b.Navigation("Address");
-
-                    b.Navigation("CorespondenceAddress");
-
                     b.Navigation("Department");
-
-                    b.Navigation("Position");
                 });
 
-            modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.PhoneNumber", b =>
+            modelBuilder.Entity("MySolution.Module.BusinessObjects.PhoneNumber", b =>
                 {
-                    b.HasOne("MyXafSolution.Module.BusinessObjects.Employee", "Employee")
+                    b.HasOne("MySolution.Module.BusinessObjects.Employee", "Employee")
                         .WithMany("PhoneNumbers")
                         .HasForeignKey("EmployeeID");
 
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.Department", b =>
+            modelBuilder.Entity("MySolution.Module.BusinessObjects.Department", b =>
                 {
                     b.Navigation("Employees");
                 });
 
-            modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.Employee", b =>
+            modelBuilder.Entity("MySolution.Module.BusinessObjects.Employee", b =>
                 {
                     b.Navigation("PhoneNumbers");
                 });

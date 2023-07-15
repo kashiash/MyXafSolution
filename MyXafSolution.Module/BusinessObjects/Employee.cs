@@ -8,7 +8,8 @@ using DevExpress.Persistent.Validation;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.ObjectModel;
 
-namespace MySolution.Module.BusinessObjects;
+
+namespace MyXafSolution.Module.BusinessObjects;
 
 [DefaultClassOptions]
 //Use this attribute to specify the caption format for the objects of the entity class.
@@ -61,9 +62,12 @@ public class Employee : BaseObject
 
     public virtual IList<DemoTask> DemoTasks { get; set; } = new ObservableCollection<DemoTask>();
     public virtual Department Department { get; set; }
-    //   public virtual PhoneNumber PhoneNumber { get; set; }
+    public virtual Position Position { get; set; }
 
     public virtual IList<PhoneNumber> PhoneNumbers { get; set; } = new ObservableCollection<PhoneNumber>();
+
+    public virtual Address Address { get; set; }
+    public virtual Address CorespondenceAddress { get; set; }
 
 }
 public enum TitleOfCourtesy

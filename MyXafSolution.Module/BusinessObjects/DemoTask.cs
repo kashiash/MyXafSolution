@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 
-namespace MySolution.Module.BusinessObjects
+namespace MyXafSolution.Module.BusinessObjects
 {
     [DefaultClassOptions]
     //Use this attribute to define the name of the objects of this type in the user interface.

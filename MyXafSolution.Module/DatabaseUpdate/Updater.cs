@@ -6,7 +6,7 @@ using DevExpress.ExpressApp.EF;
 using DevExpress.Persistent.BaseImpl.EF;
 using Castle.Core.Resource;
 using Bogus;
-using MySolution.Module.BusinessObjects;
+using MyXafSolution.Module.BusinessObjects;
 
 namespace MyXafSolution.Module.DatabaseUpdate;
 
@@ -21,15 +21,61 @@ public class Updater : ModuleUpdater
     {
         base.UpdateDatabaseAfterUpdateSchema();
 
+        Department sales = ObjectSpace.FirstOrDefault<Department>(x => x.Title == "Sales");
+        if (sales == null)
+        {
+            sales = ObjectSpace.CreateObject<Department>();
+            sales.Title = "Developer";
+        }
+        Department quality = ObjectSpace.FirstOrDefault<Department>(x => x.Title == "Quality And Assurance");
+        if (quality == null)
+        {
+            quality = ObjectSpace.CreateObject<Department>();
+            quality.Title = "Quality And Assurance";
+        }
+        Department randd = ObjectSpace.FirstOrDefault<Department>(x => x.Title == "Research And Development");
+        if (randd == null)
+        {
+            randd = ObjectSpace.CreateObject<Department>();
+            randd.Title = "Research And Development";
+        }
 
+        List<Department> departments = new List<Department> { randd, quality, sales };
+
+
+        Position developer = ObjectSpace.FirstOrDefault<Position>(x => x.Title == "Developer" );
+        if (developer == null)
+        {
+            developer = ObjectSpace.CreateObject<Position>();
+            developer.Title = "Developer";
+        }
+
+        Position manager = ObjectSpace.FirstOrDefault<Position>(x => x.Title == "Manager");
+        if (manager == null)
+        {
+            manager = ObjectSpace.CreateObject<Position>();
+            manager.Title = "Manager";
+        }
+
+        Position tester = ObjectSpace.FirstOrDefault<Position>(x => x.Title == "Tester");
+        if (tester == null)
+        {
+            tester = ObjectSpace.CreateObject<Position>();
+            tester.Title = "Tester";
+        }
+
+        List<Position> positions = new List<Position> { developer,manager , tester };
 
         var empFaker = new Faker<Employee>("pl")
             .CustomInstantiator(f => ObjectSpace.CreateObject<Employee>())
             .RuleFor(o => o.LastName, f => f.Person.FirstName)
             .RuleFor(o => o.FirstName, f => f.Person.LastName)
-            .RuleFor(o => o.TitleOfCourtesy , f => f.PickRandom<TitleOfCourtesy>())
-            .RuleFor(o => o.Email, (f, c) => f.Person.Email);
-        
+            .RuleFor(o => o.TitleOfCourtesy, f => f.PickRandom<TitleOfCourtesy>())
+            .RuleFor(o => o.Email, (f, c) => f.Person.Email)
+
+            .RuleFor(o=> o.Position, f=> f.PickRandom(positions))
+            .RuleFor(o => o.Department, f => f.PickRandom(departments))
+        ;
         empFaker.Generate(10);
         ObjectSpace.CommitChanges(); //This line persists created object(s).
     }

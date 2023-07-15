@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyXafSolution.Module.BusinessObjects;
 
@@ -11,9 +12,11 @@ using MyXafSolution.Module.BusinessObjects;
 namespace MyXafSolution.Module.Migrations
 {
     [DbContext(typeof(MyXafSolutionEFCoreDbContext))]
-    partial class MyXafSolutionEFCoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230715122901_MyInitialMigrationNameXOTM4b")]
+    partial class MyInitialMigrationNameXOTM4b
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,32 +70,6 @@ namespace MyXafSolution.Module.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("ReportDataV2");
-                });
-
-            modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.Address", b =>
-                {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StateProvince")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Street")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ZipPostal")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("Address");
                 });
 
             modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.DemoTask", b =>
@@ -150,14 +127,8 @@ namespace MyXafSolution.Module.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AddressID")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("Birthday")
                         .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CorespondenceAddressID")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("DepartmentID")
                         .HasColumnType("uniqueidentifier");
@@ -188,10 +159,6 @@ namespace MyXafSolution.Module.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("AddressID");
-
-                    b.HasIndex("CorespondenceAddressID");
 
                     b.HasIndex("DepartmentID");
 
@@ -253,14 +220,6 @@ namespace MyXafSolution.Module.Migrations
 
             modelBuilder.Entity("MyXafSolution.Module.BusinessObjects.Employee", b =>
                 {
-                    b.HasOne("MyXafSolution.Module.BusinessObjects.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressID");
-
-                    b.HasOne("MyXafSolution.Module.BusinessObjects.Address", "CorespondenceAddress")
-                        .WithMany()
-                        .HasForeignKey("CorespondenceAddressID");
-
                     b.HasOne("MyXafSolution.Module.BusinessObjects.Department", "Department")
                         .WithMany("Employees")
                         .HasForeignKey("DepartmentID");
@@ -268,10 +227,6 @@ namespace MyXafSolution.Module.Migrations
                     b.HasOne("MyXafSolution.Module.BusinessObjects.Position", "Position")
                         .WithMany()
                         .HasForeignKey("PositionID");
-
-                    b.Navigation("Address");
-
-                    b.Navigation("CorespondenceAddress");
 
                     b.Navigation("Department");
 

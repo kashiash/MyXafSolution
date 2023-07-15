@@ -5,7 +5,7 @@ using DevExpress.Persistent.BaseImpl.EF.PermissionPolicy;
 using DevExpress.Persistent.BaseImpl.EF;
 using DevExpress.ExpressApp.Design;
 using DevExpress.ExpressApp.EFCore.DesignTime;
-using MySolution.Module.BusinessObjects;
+using MyXafSolution.Module.BusinessObjects;
 
 namespace MyXafSolution.Module.BusinessObjects;
 
@@ -40,6 +40,7 @@ public class MyXafSolutionEFCoreDbContext : DbContext {
     public DbSet<DemoTask> DemoTasks { get; set; }
     public DbSet<Department> Departments { get; set; }
     public DbSet<PhoneNumber> PhoneNumbers { get; set; }
+    public DbSet<Position> Positions { get; set; }
     public DbSet<ReportDataV2> ReportDataV2 { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {

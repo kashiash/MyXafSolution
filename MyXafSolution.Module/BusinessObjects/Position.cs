@@ -7,12 +7,11 @@ namespace MyXafSolution.Module.BusinessObjects
 {
     [DefaultClassOptions]
     [DefaultProperty(nameof(Title))]
-    public class Department : BaseObject
+
+    public class Position : BaseObject
     {
         public virtual string Title { get; set; }
 
-        public virtual string Office { get; set; }
-        public virtual IList<Employee> Employees { get; set; } = new ObservableCollection<Employee>();
 
     }
 }
