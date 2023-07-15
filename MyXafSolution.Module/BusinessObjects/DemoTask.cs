@@ -26,6 +26,7 @@ namespace MyXafSolution.Module.BusinessObjects
         public virtual DateTime? StartDate { get; set; }
 
         public virtual int PercentCompleted { get; set; }
+        public virtual Priority Priority { get; set; }
 
         private TaskStatus status;
 
@@ -86,5 +87,15 @@ namespace MyXafSolution.Module.BusinessObjects
         Deferred,
         [ImageName("State_Task_Completed")]
         Completed
+    }
+
+    public enum Priority
+    {
+        [ImageName("State_Priority_Low")]
+        Low,
+        [ImageName("State_Priority_Normal")]
+        Normal,
+        [ImageName("State_Priority_High")]
+        High
     }
 }

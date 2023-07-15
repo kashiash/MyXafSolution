@@ -45,7 +45,7 @@ public class Updater : ModuleUpdater
         List<Department> departments = new List<Department> { randd, quality, sales };
 
 
-        Position developer = ObjectSpace.FirstOrDefault<Position>(x => x.Title == "Developer" );
+        Position developer = ObjectSpace.FirstOrDefault<Position>(x => x.Title == "Developer");
         if (developer == null)
         {
             developer = ObjectSpace.CreateObject<Position>();
@@ -66,7 +66,7 @@ public class Updater : ModuleUpdater
             tester.Title = "Tester";
         }
 
-        List<Position> positions = new List<Position> { developer,manager , tester };
+        List<Position> positions = new List<Position> { developer, manager, tester };
 
         var empFaker = new Faker<Employee>("pl")
             .CustomInstantiator(f => ObjectSpace.CreateObject<Employee>())
@@ -75,10 +75,10 @@ public class Updater : ModuleUpdater
             .RuleFor(o => o.TitleOfCourtesy, f => f.PickRandom<TitleOfCourtesy>())
             .RuleFor(o => o.Email, (f, c) => f.Person.Email)
 
-            .RuleFor(o=> o.Position, f=> f.PickRandom(positions))
+            .RuleFor(o => o.Position, f => f.PickRandom(positions))
             .RuleFor(o => o.Department, f => f.PickRandom(departments))
         ;
-         var emps = empFaker.Generate(10);
+        var emps = empFaker.Generate(10);
 
 
         var faker = new Faker<DemoTask>()
@@ -87,28 +87,27 @@ public class Updater : ModuleUpdater
             .RuleFor(t => t.Subject, f => f.Company.Random.Word())
             .RuleFor(t => t.Description, f => f.Lorem.Paragraph())
             .RuleFor(t => t.DueDate, f => f.Date.Future())
-            .RuleFor(t => t.StartDate, (f,t) => f.Date.Between(t.DueDate.Value.AddDays(-7), t.DueDate.Value))
+            .RuleFor(t => t.StartDate, (f, t) => f.Date.Between(t.DueDate.Value.AddDays(-7), t.DueDate.Value))
             .RuleFor(t => t.PercentCompleted, f => f.Random.Int(0, 100))
-          //  .RuleFor(t=> t.Employees, f=> f.PickRandom(emps,3).())
+            //  .RuleFor(t=> t.Employees, f=> f.PickRandom(emps,3).())
+            .RuleFor(t => t.Priority, f => f.PickRandom<Priority>())
             .RuleFor(t => t.Status, f => f.PickRandom<TaskStatus>());
 
-          var tasks =   faker.Generate(100);
+var tasks = faker.Generate(100);
 
-        foreach (var task in tasks)
-        {
-            Employee emp = ntGetRandomElement(emps);
-
-            task.Employees.Add(emp);
-            task.Employees.Add(emp);
-            task.Employees.Add(emp);
-            task.Employees.Add(emp);
-        }
+foreach (var task in tasks)
+{
+    task.Employees.Add(GetRandomElement(emps));
+    task.Employees.Add(GetRandomElement(emps));
+    task.Employees.Add(GetRandomElement(emps));
+    task.Employees.Add(GetRandomElement(emps));
+}
 
 
         ObjectSpace.CommitChanges(); //This line persists created object(s).
     }
 
-    private static Employee ntGetRandomElement(List<Employee> emps)
+    private static T GetRandomElement<T>(List<T> emps)
     {
         Random random = new Random();
         var emp = emps.OrderBy(x => random.Next()).Take(1).FirstOrDefault();
