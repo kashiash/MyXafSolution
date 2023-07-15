@@ -1140,3 +1140,100 @@ PORADA
 Możesz zainicjować właściwość `ShowViewParameters` w obsłudze zdarzenia Execute dowolnej akcji dowolnego typu. Dzięki temu zawsze można wyświetlać widok po wykonaniu akcji.
 
 Aby uzyskać więcej informacji na temat wyświetlania widoku w osobnym oknie, odwołaj się do następującego tematu: Sposoby wyświetlania widoku. [Ways to Show a View | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/112803/ui-construction/views/ways-to-show-a-view/ways-to-show-a-view)
+
+
+
+
+
+## PopupWindowAction
+
+
+
+
+
+Dodajmy nową klasę Note:
+
+```csharp
+using DevExpress.ExpressApp.DC;
+using DevExpress.Persistent.Base;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+
+namespace MySolution.Module.BusinessObjects;
+
+[DefaultProperty(nameof(Text))]
+[ImageName("BO_Note")]
+public class Note {
+
+    [Key, Browsable(false)]
+    [DevExpress.ExpressApp.Data.Key]
+    [VisibleInDetailView(false), VisibleInListView(false), VisibleInLookupListView(false)]
+    public virtual Guid ID { get; set; }
+    public virtual String Author { get; set; }
+    public virtual DateTime? DateTime { get; set; }
+
+    [FieldSize(FieldSizeAttribute.Unlimited)]
+    public virtual String Text { get; set; }
+}
+```
+
+
+
+
+
+utworzmy kontroler *PopupNotesController* (skróty codeRush xcv oraz xapw)
+
+
+
+```csharp
+
+public PopupNotesController() : base()
+{
+    TargetObjectType = typeof(DemoTask);
+    TargetViewType = ViewType.DetailView;
+
+    showNotesAction = new PopupWindowShowAction(this, $"{GetType().FullName}{nameof(showNotesAction)}",
+            PredefinedCategory.View)
+    {
+        Caption = "Show Notes"
+    };
+    showNotesAction.Execute += showNotesAction_Execute;
+    showNotesAction.CustomizePopupWindowParams += showNotesAction_CustomizePopupWindowParams;
+            
+}
+..
+}
+```
+
+
+
+
+
+```csharp
+    private void ShowNotesAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e) {
+        //Create a List View for Note objects in the pop-up window.
+        e.View = Application.CreateListView(typeof(Note), true);
+    }
+```
+
+
+
+Dodaj obsługę zdarzenia `Execute` dla akcji `ShowNotesAction`. To zdarzenie występuje, gdy użytkownik kliknie OK w oknie pop-up. Kod obsługujący zdarzenie dodaje wartość właściwości `Note.Text` do wartości właściwości `Task.Description`. 
+
+```csharp
+private void showNotesAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
+{
+    DemoTask task = (DemoTask)View.CurrentObject;
+    foreach (Note note in e.PopupWindowViewSelectedObjects)
+    {
+        if (!string.IsNullOrEmpty(task.Description))
+        {
+            task.Description += Environment.NewLine;
+        }
+        // Add selected note texts to a Task's description
+        task.Description += note.Text;
+    }
+    View.ObjectSpace.CommitChanges();
+}
+```
+
