@@ -372,7 +372,11 @@ powiązane linki, ktore moga byc przydatne:
 
 
 
-mozna uzyc generatora danych testowych https://github.com/bchavez/Bogus
+można użyć generatora danych testowych https://github.com/bchavez/Bogus
+
+
+
+Install-Package Bogus
 
 
 
@@ -1181,7 +1185,7 @@ public class Note {
 
 
 
-utworzmy kontroler *PopupNotesController* (skróty codeRush xcv oraz xapw)
+utwórzmy kontroler *PopupNotesController* (skróty codeRush xcv oraz xapw)
 
 
 
@@ -1237,3 +1241,46 @@ private void showNotesAction_Execute(object sender, PopupWindowShowActionExecute
 }
 ```
 
+
+
+
+
+w Updater dodajmy kod ktory wygeneruje nam nieco zadan:
+
+```csharp
+var faker = new Faker<DemoTask>()
+.CustomInstantiator(f => ObjectSpace.CreateObject<DemoTask>())
+.RuleFor(t => t.DateCompleted, f => f.Date.Past())
+.RuleFor(t => t.Subject, f => f.Company.Random.Word())
+.RuleFor(t => t.Description, f => f.Lorem.Paragraph())
+.RuleFor(t => t.DueDate, f => f.Date.Future())
+.RuleFor(t => t.StartDate, (f,t) => f.Date.Between(t.DueDate.Value.AddDays(-7), t.DueDate.Value))
+.RuleFor(t => t.PercentCompleted, f => f.Random.Int(0, 100))
+.RuleFor(t=> t.Employees, f=> empFaker.Generate(5))
+    
+.RuleFor(t => t.Status, f => f.PickRandom<TaskStatus>());
+
+var tasks = faker.Generate(100);
+// powiąższmy zadania z klientami
+foreach (var task in tasks)
+{
+    task.Employees.Add(GetRandomElement(emps));
+ 	task.Employees.Add(GetRandomElement(emps));
+    task.Employees.Add(GetRandomElement(emps));
+    task.Employees.Add(GetRandomElement(emps));
+}
+
+
+  
+```
+
+
+
+potrzebna funkcja zwracajaca losowy element z listy:
+
+    private static T GetRandomElement<T>(List<T> emps)
+    {
+        Random random = new Random();
+        var emp = emps.OrderBy(x => random.Next()).Take(1).FirstOrDefault();
+        return emp;
+    }

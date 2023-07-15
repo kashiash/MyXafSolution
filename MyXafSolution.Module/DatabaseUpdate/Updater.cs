@@ -8,6 +8,7 @@ using Castle.Core.Resource;
 using Bogus;
 using MyXafSolution.Module.BusinessObjects;
 using TaskStatus = MyXafSolution.Module.BusinessObjects.TaskStatus;
+using System;
 
 namespace MyXafSolution.Module.DatabaseUpdate;
 
@@ -91,12 +92,29 @@ public class Updater : ModuleUpdater
           //  .RuleFor(t=> t.Employees, f=> f.PickRandom(emps,3).())
             .RuleFor(t => t.Status, f => f.PickRandom<TaskStatus>());
 
-            faker.Generate(100);
-  
+          var tasks =   faker.Generate(100);
+
+        foreach (var task in tasks)
+        {
+            Employee emp = ntGetRandomElement(emps);
+
+            task.Employees.Add(emp);
+            task.Employees.Add(emp);
+            task.Employees.Add(emp);
+            task.Employees.Add(emp);
+        }
 
 
         ObjectSpace.CommitChanges(); //This line persists created object(s).
     }
+
+    private static Employee ntGetRandomElement(List<Employee> emps)
+    {
+        Random random = new Random();
+        var emp = emps.OrderBy(x => random.Next()).Take(1).FirstOrDefault();
+        return emp;
+    }
+
     public override void UpdateDatabaseBeforeUpdateSchema()
     {
         base.UpdateDatabaseBeforeUpdateSchema();
