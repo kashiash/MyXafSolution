@@ -50,5 +50,9 @@ public class MyXafSolutionEFCoreDbContext : DbContext {
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
         modelBuilder.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
+
+        modelBuilder.Entity<FilteringCriterion>()
+    .Property(t => t.ObjectType)
+    .HasConversion(new TypeToStringConverter());
     }
 }

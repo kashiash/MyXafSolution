@@ -1,6 +1,18 @@
 # Zapamiętywanie filtrów
 
- Wersja dla XPO:
+Warto poczytać: 
+
+https://docs.devexpress.com/eXpressAppFramework/113564/business-model-design-orm/data-types-supported-by-built-in-editors/criteria-properties
+
+https://docs.devexpress.com/eXpressAppFramework/113143/ui-construction/view-items-and-property-editors/property-editors/use-criteria-property-editors
+
+
+
+ 
+
+
+
+Wersja dla XPO:
 
 klasa przechowujaca definicje filtra:
 
@@ -422,5 +434,161 @@ public class FilteringCriterionDetailController : EventsObjectViewController<Det
 			}
 		}
 	}
+```
+
+
+
+
+
+Wersja EF (uproszczona)
+
+`FilteringCriterion` przechuje definicje filtra
+
+```csharp
+public class TypeToStringConverter : ValueConverter<Type, string> {
+    public TypeToStringConverter() : base(
+            v => v.FullName,
+            v => ReflectionHelper.FindType(v)) { }
+}
+
+[DefaultClassOptions,ImageName("Action_Filter")]
+public class FilteringCriterion : BaseObject {
+    public virtual string Description { get; set; }
+    [ImmediatePostData]
+    [TypeConverter(typeof(LocalizedClassInfoTypeConverter))]
+    public virtual Type ObjectType { get; set; }
+    [CriteriaOptions("ObjectType"),FieldSize(FieldSizeAttribute.Unlimited)]
+    [EditorAlias(EditorAliases.PopupCriteriaPropertyEditor)]
+    public virtual string Criterion { get; set; }
+}
+
+
+```
+
+
+
+Rejestrujemy ta klasę i konwerter
+
+```csharp
+using DevExpress.ExpressApp.DC;
+using DevExpress.ExpressApp.Editors;
+using DevExpress.Persistent.Base;
+using DevExpress.Persistent.BaseImpl.EF;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.ComponentModel;
+//...
+
+public class ApplicationDbContext : DbContext {
+    // ...
+    public DbSet<FilteringCriterion> FilteringCriterions { get; set;}
+    // ...
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        // ...
+        modelBuilder.Entity<FilteringCriterion>()
+            .Property(t => t.ObjectType)
+            .HasConversion(new TypeToStringConverter());
+    }
+}
+
+
+```
+
+
+
+Tworzymy kontroler który pozwala wybrać zdefiniowany filtr, dodać nowy lub wyczyścić filtrowanie
+
+
+
+```csharp
+using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.Actions;
+using DevExpress.Persistent.Base;
+using DevExpress.ExpressApp.Editors;
+using DevExpress.Data.Filtering;
+using DevExpress.ExpressApp.Templates;
+// ...
+ public class CriteriaController : ViewController<ListView>
+    {
+        private SingleChoiceAction filteringCriterionAction;
+        private readonly SimpleAction saveGridFilterAction;
+        private readonly SimpleAction wyczyscFiltry;
+
+        public CriteriaController()
+        {
+            filteringCriterionAction = new SingleChoiceAction(
+                this, "FilteringCriterion", PredefinedCategory.Filters);
+            filteringCriterionAction.Execute += new DevExpress.ExpressApp.Actions.SingleChoiceActionExecuteEventHandler(this.FilteringCriterionAction_Execute);
+            TargetViewType = ViewType.ListView;
+
+
+            saveGridFilterAction = new SimpleAction(this, "SaveGridFilter", PredefinedCategory.Filters);
+            saveGridFilterAction.Caption = "Zapisz filtr";
+            saveGridFilterAction.ToolTip = "Zapisz filtr zastosowany na liście w celu powtórnego wykorzystania";
+            saveGridFilterAction.ImageName = "EditFilter";
+            saveGridFilterAction.Execute += SaveGridFilterAction_Execute;
+
+            wyczyscFiltry = new SimpleAction(this, nameof(wyczyscFiltry), PredefinedCategory.Filters)
+            {
+                Caption = "Wyczyćś filtry",
+                ImageName = "ClearFilter",
+                PaintStyle = ActionItemPaintStyle.CaptionAndImage
+            };
+            wyczyscFiltry.Execute += WyczyscFiltry_Execute;
+        }
+
+        private void WyczyscFiltry_Execute(object sender, SimpleActionExecuteEventArgs e)
+        {
+            View.CollectionSource.Criteria[nameof(CriteriaController)] = null;
+            View.Refresh();
+        }
+
+        private void SaveGridFilterAction_Execute(object sender, SimpleActionExecuteEventArgs e)
+        {
+            if (View.Editor is ISupportFilter editor && !string.IsNullOrEmpty(editor.Filter))
+            {
+                var objectSpace = Application.CreateObjectSpace(typeof(FilteringCriterion));
+                var filteringCriterion = objectSpace.CreateObject<FilteringCriterion>();
+                filteringCriterion.ObjectType = View.ObjectTypeInfo.Type;
+                filteringCriterion.Criterion = editor.Filter;
+
+
+                string filteringDetailId = Application.FindDetailViewId(typeof(FilteringCriterion));
+                var view = Application.CreateDetailView(objectSpace, filteringDetailId, true, filteringCriterion);
+                e.ShowViewParameters.CreatedView = view;
+                e.ShowViewParameters.Context = TemplateContext.View;
+                e.ShowViewParameters.TargetWindow = TargetWindow.NewModalWindow;
+
+                view.ModelSaved += View_ModelSaved;
+            }
+
+        }
+        private void View_ModelSaved(object sender, EventArgs e) { RefreshActionItems(); }
+        protected override void OnActivated()
+        {
+            RefreshActionItems();
+        }
+
+        private void RefreshActionItems()
+        {
+            filteringCriterionAction.Items.Clear();
+            foreach (FilteringCriterion criterion in ObjectSpace.GetObjects<FilteringCriterion>())
+                if (criterion.ObjectType.IsAssignableFrom(View.ObjectTypeInfo.Type))
+                {
+                    filteringCriterionAction.Items.Add(
+                        new ChoiceActionItem(criterion.Description, criterion.Criterion));
+                }
+            if (filteringCriterionAction.Items.Count > 0)
+                filteringCriterionAction.Items.Add(new ChoiceActionItem("All", null));
+        }
+
+        private void FilteringCriterionAction_Execute(
+            object sender, SingleChoiceActionExecuteEventArgs e)
+        {
+            ((ListView)View).CollectionSource.Criteria[nameof(CriteriaController)] =
+                CriteriaEditorHelper.GetCriteriaOperator(
+                e.SelectedChoiceActionItem.Data as string, View.ObjectTypeInfo.Type, ObjectSpace);
+        }
+    }
 ```
 
