@@ -14,6 +14,14 @@ Notatki z walki z tutorialem :
 
 
 
+Inne dodatkowe notatki w grupie Receptury
+
+[Data Grid](Receptury_dataGrid.md)
+
+[Kontrolery](Receptury_Kontrolery.md)
+
+
+
 Z tego względu ze DevExpress rekomenduje przejście z XPO na EF, aktualizuję swoja wiedzę o XAF + EF
 
 
