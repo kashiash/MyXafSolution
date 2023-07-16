@@ -1,18 +1,51 @@
-﻿<?xml version="1.0" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Application Title="MyXafSolution">
   <Options>
     <LayoutManagerOptions RequiredFieldMark="*" />
   </Options>
+  <SchemaModules>
+    <SchemaModule Name="SystemModule" Version="23.1.3.0" IsNewNode="True" />
+  </SchemaModules>
   <Views>
+    <ListView Id="DemoTask_ListView">
+      <Columns>
+        <ColumnInfo Id="Subject" Width="183" />
+        <ColumnInfo Id="DateCompleted" Width="187" />
+        <ColumnInfo Id="DueDate" Width="141" />
+        <ColumnInfo Id="StartDate" Width="136" />
+        <ColumnInfo Id="PercentCompleted" Width="119" />
+        <ColumnInfo Id="Priority" Width="132" />
+        <ColumnInfo Id="Deadline" Width="142" />
+        <ColumnInfo Id="Status" Width="171" />
+      </Columns>
+    </ListView>
+    <ListView Id="Employee_ListView">
+      <Columns>
+        <ColumnInfo Id="FullName" Width="141" />
+        <ColumnInfo Id="FirstName" Width="203" />
+        <ColumnInfo Id="LastName" Width="194" />
+        <ColumnInfo Id="MiddleName" Width="233" />
+        <ColumnInfo Id="Birthday" Width="105" />
+        <ColumnInfo Id="TitleOfCourtesy" Width="184" />
+        <ColumnInfo Id="DisplayName" Width="158" />
+        <ColumnInfo Id="Email" Width="79" />
+        <ColumnInfo Id="WebPageAddress" Width="204" />
+        <ColumnInfo Id="Department" Width="140" />
+        <ColumnInfo Id="Position" Width="103" />
+        <ColumnInfo Id="Address" Width="103" />
+        <ColumnInfo Id="CorespondenceAddress" Width="253" />
+        <ColumnInfo Id="Manager" Width="112" />
+      </Columns>
+    </ListView>
     <DetailView Id="ReportDataV2_DetailView">
       <Layout>
-        <LayoutGroup Id="Main" >
-          <LayoutGroup Id="SimpleEditors" >
-            <LayoutGroup Id="ReportDataV2" >
+        <LayoutGroup Id="Main">
+          <LayoutGroup Id="SimpleEditors">
+            <LayoutGroup Id="ReportDataV2">
               <LayoutItem Id="DisplayName" ViewItem="DisplayName" Index="0" IsNewNode="True" Removed="True" />
               <LayoutItem Id="ParametersObjectType" ViewItem="ParametersObjectType" Index="1" IsNewNode="True" Removed="True" />
               <LayoutItem Id="DataTypeCaption" ViewItem="DataTypeCaption" Index="2" IsNewNode="True" Removed="True" />
-              <LayoutItem Id="IsInplaceReport" Index="3" />
+              <LayoutItem Id="IsInplaceReport" Index="3" ViewItem="IsInplaceReport" />
             </LayoutGroup>
           </LayoutGroup>
         </LayoutGroup>
