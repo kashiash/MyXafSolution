@@ -75,21 +75,20 @@ public class GridViewController : ObjectViewController<ListView, TargetClassName
 
 
 
-### Naprzemienne kolorowanie wierszy na liscie  oraz domyslne ustawienia na wszystkich listach np AutoFilter
+### Naprzemienne kolorowanie wierszy na liście  oraz domyślne ustawienia na wszystkich listach np AutoFilter
 
-
+Winforms
 
 ```csharp
-    public class GridCustomizeController : ViewController<ListView>
+    public class DataGridListViewController : ViewController<ListView>
     {
 
-        GridListEditor gridListEditor = null;
-        public GridCustomizeController() : base()
+        public DataGridListViewController() : base()
         {
-            ViewControlsCreated += GridCustomizeController_ViewControlsCreated;
+            ViewControlsCreated += DataGridListViewController_ViewControlsCreated;
         }
 
-        private void GridCustomizeController_ViewControlsCreated(object sender, EventArgs e)
+        private void DataGridListViewController_ViewControlsCreated(object sender, EventArgs e)
         {
             GridListEditor listEditor = View.Editor as GridListEditor;
 
@@ -138,12 +137,40 @@ public class GridViewController : ObjectViewController<ListView, TargetClassName
     }
 ```
 
+Blazor
+
+```csharp
+    public class DataGridListViewController : ViewController<ListView>
+    {
+        protected override void OnViewControlsCreated()
+        {
+            base.OnViewControlsCreated();
+            if (View.Editor is DxGridListEditor gridListEditor)
+            {
+                var dataGridAdapter = gridListEditor.GetGridAdapter();
+                dataGridAdapter.GridModel.CssClass += " grid-striped";
+                dataGridAdapter.GridModel.ColumnResizeMode = GridColumnResizeMode.ColumnsContainer;
+                dataGridAdapter.GridModel.ShowFilterRow = true;
+                dataGridAdapter.GridModel.PageSizeSelectorVisible = true;
+
+                foreach (var column in gridListEditor.Columns)
+                {
+                    if (column.Width < 80)
+                    {
+                        column.Width = 80;
+                    }
+                }
+            }
+        }
+    }
+```
 
 
-## Zapamietywanie filtrów
+
+## Zapamiętywanie filtrów
 
 
 
 
 
-## zapmaiertyweanie 
+## Zapamiętywanie ustawień warunkowych (Tylko WinForms) 

@@ -9,15 +9,13 @@ using System.Threading.Tasks;
 
 namespace MyXafSolution.Win.Controllers
 {
-    public class GridCustomizeController : ViewController<ListView>
+    public class DataGridListViewController : ViewController<ListView>
     {
 
-        GridListEditor gridListEditor = null;
-        public GridCustomizeController() : base()
+      
+        public DataGridListViewController() : base()
         {
-           
             ViewControlsCreated += GridCustomizeController_ViewControlsCreated;
-            
         }
 
         private void GridCustomizeController_ViewControlsCreated(object sender, EventArgs e)
@@ -43,9 +41,7 @@ namespace MyXafSolution.Win.Controllers
             gridView.OptionsMenu.ShowConditionalFormattingItem = true;
             gridView.OptionsPrint.ExpandAllGroups = false;
             //  właczamy filtry pod nagłowkami
-
-            //  właczamy scroll - ustaw false 
-            gridView.OptionsView.ColumnAutoWidth = false;
+            gridView.OptionsView.ColumnAutoWidth = true;
             //  właczamy zmiane rozmiru kolumn
             gridView.OptionsView.RowAutoHeight = true;
 
