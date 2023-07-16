@@ -22,6 +22,8 @@ Inne dodatkowe notatki w grupie Receptury
 
 [Kontrolery](Receptury_Kontrolery.md)
 
+[Fakturowanie](Fakturowanie.md)
+
 
 
 Z tego względu ze DevExpress rekomenduje przejście z XPO na EF, aktualizuję swoja wiedzę o XAF + EF
