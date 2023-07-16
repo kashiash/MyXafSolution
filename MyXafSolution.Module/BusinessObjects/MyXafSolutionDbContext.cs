@@ -44,6 +44,11 @@ public class MyXafSolutionEFCoreDbContext : DbContext {
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Note> Notes { get; set; }
     public DbSet<FilteringCriterion> FilteringCriteria { get; set; }
+    public DbSet<VatRate> VatRates { get; set; }
+    public DbSet<ProductGroup> ProductGroups { get; set; }
+    public DbSet<Product> Products { get; set; }
+
+
     public DbSet<ReportDataV2> ReportDataV2 { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {

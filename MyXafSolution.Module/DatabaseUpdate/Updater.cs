@@ -104,9 +104,42 @@ foreach (var task in tasks)
 }
 
 
+
+        var rates = ObjectSpace.GetObjectsQuery<VatRate>().ToList();
+        if (rates.Count == 0)
+        {
+            rates.Add(NowaStawka("23%", 23M));
+            rates.Add(NowaStawka("0%", 0M));
+            rates.Add(NowaStawka("7%", 7M));
+            rates.Add(NowaStawka("ZW", 0M));
+        }
+
+        var prodFaker = new Faker<Product>("pl")
+
+  .CustomInstantiator(f => ObjectSpace.CreateObject<Product>())
+      .RuleFor(o => o.Name, f => f.Commerce.ProductName())
+      .RuleFor(o => o.Description, f => f.Commerce.ProductDescription())
+      .RuleFor(o => o.ShortName, f => f.Commerce.Product())
+      .RuleFor(o => o.UnitPrice, f => f.Random.Decimal(0.01M, 100M))
+      .RuleFor(o => o.VatRate, f => f.PickRandom(rates))
+      .RuleFor(o => o.Gtin, f => f.Commerce.Ean13());
+
+        prodFaker.Generate(100);
+
         ObjectSpace.CommitChanges(); //This line persists created object(s).
     }
 
+    private VatRate NowaStawka(string symbol, decimal val)
+    {
+        var vat = ObjectSpace.FindObject<VatRate>(CriteriaOperator.Parse("Symbol = ?", symbol));
+        if (vat == null)
+        {
+            vat = ObjectSpace.CreateObject<VatRate>();
+            vat.Symbol = symbol;
+            vat.RateValue = val;
+        }
+        return vat;
+    }
     private static T GetRandomElement<T>(List<T> emps)
     {
         Random random = new Random();
