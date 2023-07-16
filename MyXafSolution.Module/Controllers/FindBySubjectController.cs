@@ -17,7 +17,11 @@ namespace MyXafSolution.Module.Controllers
         public FindBySubjectController() : base()
         {
             // Target required Views (use the TargetXXX properties) and create their Actions.
-            findBySubjectAction = new ParametrizedAction(this, $"{GetType().FullName}{nameof(findBySubjectAction)}", PredefinedCategory.View , typeof(string));
+            findBySubjectAction = new ParametrizedAction(this, $"{GetType().FullName}{nameof(findBySubjectAction)}", PredefinedCategory.View, typeof(string)) 
+            {
+                ImageName = "Action_Search",
+                NullValuePrompt = "Find task by subject..."
+            };
             findBySubjectAction.Execute += findBySubjectAction_Execute;
             
         }

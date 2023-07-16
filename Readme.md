@@ -1105,10 +1105,11 @@ public class FindBySubjectController : ViewController
    ParametrizedAction findBySubjectAction;
    public FindBySubjectController() : base()
     {
-       findBySubjectAction = new ParametrizedAction(this,
-                  $"{GetType().FullName}{nameof(findBySubjectAction)}",
-                  PredefinedCategory.View , typeof(string));
-       
+            findBySubjectAction = new ParametrizedAction(this, $"{GetType().FullName}{nameof(findBySubjectAction)}", PredefinedCategory.View, typeof(string)) 
+            {
+                ImageName = "Action_Search",
+                NullValuePrompt = "Find task by subject..."
+            };
        findBySubjectAction.Execute += findBySubjectAction_Execute;  
      }
     ..

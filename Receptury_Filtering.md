@@ -592,3 +592,4 @@ using DevExpress.ExpressApp.Templates;
     }
 ```
 
+ta wersja w przypadku Blazora wymaga jeszcze dopracowania !!!

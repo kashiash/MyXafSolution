@@ -37,7 +37,7 @@ namespace MyXafSolution.Module.Controllers
 
             wyczyscFiltry = new SimpleAction(this, nameof(wyczyscFiltry), PredefinedCategory.Filters)
             {
-                Caption = "Wyczyćś filtry",
+                Caption = "Wyczyść filtry",
                 ImageName = "ClearFilter",
                 PaintStyle = ActionItemPaintStyle.CaptionAndImage
             };
