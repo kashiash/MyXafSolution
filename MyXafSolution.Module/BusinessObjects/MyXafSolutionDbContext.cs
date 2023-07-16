@@ -47,6 +47,7 @@ public class MyXafSolutionEFCoreDbContext : DbContext {
     public DbSet<VatRate> VatRates { get; set; }
     public DbSet<ProductGroup> ProductGroups { get; set; }
     public DbSet<Product> Products { get; set; }
+    public DbSet<Customer> Customers { get; set; }
 
 
     public DbSet<ReportDataV2> ReportDataV2 { get; set; }

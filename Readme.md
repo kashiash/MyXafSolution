@@ -44,6 +44,8 @@ Autonumerowanie innych pól niż klucze:
 
 
 
+## Tworzymy projekt
+
 Generujemy jak zwykle projekt ale zamiast XPO wybieramy EF - tzn. nic nie musimy wybierać bo już jest wybrane. Nazywamy go np `MyXafSolution`
 
 
@@ -418,26 +420,6 @@ Install-Package Bogus
         ObjectSpace.CommitChanges(); //This line persists created object(s).
     }
 ```
-
-tu przyklad dla innej klasy:
-
-```csharp
-            var cusFaker = new Faker<Customer>("pl")
-                .CustomInstantiator(f => ObjectSpace.CreateObject<Customer>())
-
-                .RuleFor(o => o.Notes, f => f.Company.CatchPhrase())
-                .RuleFor(o => o.CustomerName, f => f.Company.CompanyName())
-                .RuleFor(o => o.Segment, f => f.PickRandom<Segment>())
-                .RuleFor(o => o.City, f => f.Address.City())
-                .RuleFor(o => o.PostalCode, f => f.Address.ZipCode())
-                .RuleFor(o => o.Street, f => f.Address.StreetName())
-                .RuleFor(o => o.Phone, f => f.Person.Phone)
-                .RuleFor(o => o.Email, (f, c) => f.Internet.Email());
-            cusFaker.Generate(100);
-            ObjectSpace.CommitChanges(); //This line persists created object(s).
-```
-
-
 
 
 

@@ -93,15 +93,15 @@ public class Updater : ModuleUpdater
             .RuleFor(t => t.Priority, f => f.PickRandom<Priority>())
             .RuleFor(t => t.Status, f => f.PickRandom<TaskStatus>());
 
-var tasks = faker.Generate(100);
+        var tasks = faker.Generate(100);
 
-foreach (var task in tasks)
-{
-    task.Employees.Add(GetRandomElement(emps));
-    task.Employees.Add(GetRandomElement(emps));
-    task.Employees.Add(GetRandomElement(emps));
-    task.Employees.Add(GetRandomElement(emps));
-}
+        foreach (var task in tasks)
+        {
+            task.Employees.Add(GetRandomElement(emps));
+            task.Employees.Add(GetRandomElement(emps));
+            task.Employees.Add(GetRandomElement(emps));
+            task.Employees.Add(GetRandomElement(emps));
+        }
 
 
 
@@ -114,7 +114,14 @@ foreach (var task in tasks)
             rates.Add(NowaStawka("ZW", 0M));
         }
 
+        tester = CreateProductGroup(tester);
+
+        List<Position> groups = new List<Position> { developer, manager, tester };
+
         var prodFaker = new Faker<Product>("pl")
+
+
+
 
   .CustomInstantiator(f => ObjectSpace.CreateObject<Product>())
       .RuleFor(o => o.Name, f => f.Commerce.ProductName())
@@ -127,6 +134,18 @@ foreach (var task in tasks)
         prodFaker.Generate(100);
 
         ObjectSpace.CommitChanges(); //This line persists created object(s).
+    }
+
+    private Position CreateProductGroup(string name)
+    {
+        ProductGroup group = ObjectSpace.FirstOrDefault<ProductGroup>(x => x.Name == "Hardware");
+        if (group == null)
+        {
+            group = ObjectSpace.CreateObject<ProductGroup>();
+            group.Name = "Hardware";
+        }
+
+        return group;
     }
 
     private VatRate NowaStawka(string symbol, decimal val)

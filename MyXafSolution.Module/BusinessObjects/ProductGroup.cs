@@ -12,6 +12,7 @@ using DevExpress.XtraCharts;
 namespace MyXafSolution.Module.BusinessObjects
 {
     [DefaultClassOptions]
+    [NavigationItem("Others")]
     [DefaultProperty(nameof(Name))]
     public class ProductGroup: BaseObject
     {
