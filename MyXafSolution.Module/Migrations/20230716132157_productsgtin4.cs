@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MyXafSolution.Module.Migrations
 {
     /// <inheritdoc />
-    public partial class productsgtin : Migration
+    public partial class productsgtin4 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -150,12 +150,13 @@ namespace MyXafSolution.Module.Migrations
                 name: "VatRates",
                 columns: table => new
                 {
-                    Symbol = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RateValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    ID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Symbol = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RateValue = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VatRates", x => x.Symbol);
+                    table.PrimaryKey("PK_VatRates", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -216,8 +217,8 @@ namespace MyXafSolution.Module.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     GroupID = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    VatRateSymbol = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
+                    VatRateID = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Gtin = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -229,10 +230,10 @@ namespace MyXafSolution.Module.Migrations
                         principalTable: "ProductGroups",
                         principalColumn: "ID");
                     table.ForeignKey(
-                        name: "FK_Products_VatRates_VatRateSymbol",
-                        column: x => x.VatRateSymbol,
+                        name: "FK_Products_VatRates_VatRateID",
+                        column: x => x.VatRateID,
                         principalTable: "VatRates",
-                        principalColumn: "Symbol");
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
@@ -319,9 +320,9 @@ namespace MyXafSolution.Module.Migrations
                 column: "GroupID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_VatRateSymbol",
+                name: "IX_Products_VatRateID",
                 table: "Products",
-                column: "VatRateSymbol");
+                column: "VatRateID");
         }
 
         /// <inheritdoc />

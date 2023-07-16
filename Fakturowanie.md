@@ -32,6 +32,8 @@ zaczniemy jednak od wersji uproszczonej:
 
 Grupa produktów:
 
+
+
 ```csharp
     [DefaultClassOptions]
     [DefaultProperty(nameof(Name))]
@@ -44,7 +46,7 @@ Grupa produktów:
     }
 ```
 
-Stawki Vat
+Stawki Vat:
 
 ```csharp
     [DefaultClassOptions]

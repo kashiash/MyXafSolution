@@ -32,6 +32,16 @@ Z tego względu ze DevExpress rekomenduje przejście z XPO na EF, aktualizuję s
 
 [Why We Recommend EF Core over XPO for New Development | eXpressApp Framework | DevExpress Documentation](https://docs.devexpress.com/eXpressAppFramework/404186/why-we-recommend-ef-core-over-xpo)
 
+Warto tez poczytać: [Overview of Entity Framework Core - EF Core | Microsoft Learn](https://learn.microsoft.com/en-us/ef/core/)
+
+
+
+Autonumerowanie innych pól niż klucze:
+
+[DevExpress-Examples/XAF_generate-a-sequential-number-for-a-persistent-object-within-a-database-transaction: How to generate a sequential number for a persistent object within a database transaction in eXpressApp Framework (github.com)](https://github.com/DevExpress-Examples/XAF_generate-a-sequential-number-for-a-persistent-object-within-a-database-transaction)
+
+
+
 
 
 Generujemy jak zwykle projekt ale zamiast XPO wybieramy EF - tzn. nic nie musimy wybierać bo już jest wybrane. Nazywamy go np `MyXafSolution`

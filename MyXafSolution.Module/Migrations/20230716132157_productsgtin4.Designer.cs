@@ -12,8 +12,8 @@ using MyXafSolution.Module.BusinessObjects;
 namespace MyXafSolution.Module.Migrations
 {
     [DbContext(typeof(MyXafSolutionEFCoreDbContext))]
-    [Migration("20230716124547_productsgtin2")]
-    partial class productsgtin2
+    [Migration("20230716132157_productsgtin4")]
+    partial class productsgtin4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
