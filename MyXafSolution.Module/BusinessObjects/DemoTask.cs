@@ -21,11 +21,7 @@ namespace MyXafSolution.Module.BusinessObjects
     GetDate([DueDate]) <= ADDDAYS(LocalDateTimeLastWeek(), 5)")]
     [ListViewFilter("This week", @"GetDate([DueDate]) > LocalDateTimeThisWeek() AND 
     GetDate([DueDate]) <= ADDDAYS(LocalDateTimeThisWeek(), 5)")]
-    public class Task : BaseObject
-    {
-        [ModelDefault("EditMask", "d")]
-        public virtual DateTime DueDate { get; set; }
-    }
+
     [ModelDefault("Caption", "Task")]
     public class DemoTask : BaseObject
     {

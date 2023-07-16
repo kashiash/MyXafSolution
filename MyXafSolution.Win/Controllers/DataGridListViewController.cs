@@ -15,10 +15,10 @@ namespace MyXafSolution.Win.Controllers
       
         public DataGridListViewController() : base()
         {
-            ViewControlsCreated += GridCustomizeController_ViewControlsCreated;
+            ViewControlsCreated += DataGridListViewController_ViewControlsCreated;
         }
 
-        private void GridCustomizeController_ViewControlsCreated(object sender, EventArgs e)
+        private void DataGridListViewController_ViewControlsCreated(object sender, EventArgs e)
         {
             GridListEditor listEditor = View.Editor as GridListEditor;
 
