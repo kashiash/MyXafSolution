@@ -6,7 +6,7 @@ https://docs.devexpress.com/eXpressAppFramework/113564/business-model-design-orm
 
 https://docs.devexpress.com/eXpressAppFramework/113143/ui-construction/view-items-and-property-editors/property-editors/use-criteria-property-editors
 
-
+https://docs.devexpress.com/eXpressAppFramework/112998/filtering
 
  
 
@@ -14,7 +14,7 @@ https://docs.devexpress.com/eXpressAppFramework/113143/ui-construction/view-item
 
 Wersja dla XPO:
 
-klasa przechowujaca definicje filtra:
+klasa przechowująca definicje filtra:
 
 
 

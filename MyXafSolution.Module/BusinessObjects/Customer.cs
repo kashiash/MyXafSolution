@@ -64,5 +64,6 @@ namespace MyXafSolution.Module.BusinessObjects
         HomeOffice = 0,
         [XafDisplayName("Small Business")]
         SmallBusiness = 9
+
     }
 }
