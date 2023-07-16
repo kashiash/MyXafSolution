@@ -15,7 +15,7 @@ using DevExpress.XtraGrid;
 namespace MyXafSolution.Win.Controllers
 {
     // For more typical usage scenarios, be sure to check out http://documentation.devexpress.com/#Xaf/clsDevExpressExpressAppViewControllertopic.
-    public class T291012_GridListEditor : ViewController<ListView>, IModelExtender
+    public class GridFormatRulesStoreController : ViewController<ListView>, IModelExtender
     {
         GridFormatRulesStore formatRulesStore = null;
         GridListEditor gridListEditor = null;
