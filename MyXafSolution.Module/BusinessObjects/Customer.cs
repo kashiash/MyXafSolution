@@ -54,7 +54,7 @@ namespace MyXafSolution.Module.BusinessObjects
 
         public virtual Segment Segment { get; set; }
 
-        public static String FullNameFormat = "{FirstName} {MiddleName} {LastName}";
+        public static String FullNameFormat = "{CompanyName} {ExtendedName} {VatID}";
     }
     public enum Segment
     {

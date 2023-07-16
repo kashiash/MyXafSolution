@@ -113,36 +113,49 @@ public class Updater : ModuleUpdater
             rates.Add(NowaStawka("7%", 7M));
             rates.Add(NowaStawka("ZW", 0M));
         }
+        List<ProductGroup> groups = new List<ProductGroup>();
+        groups.Add(CreateProductGroup("Hardware"));
+        groups.Add(CreateProductGroup("Software"));
+        groups.Add(CreateProductGroup("Food"));
+        groups.Add(CreateProductGroup("Vehicles"));
 
-        tester = CreateProductGroup(tester);
 
-        List<Position> groups = new List<Position> { developer, manager, tester };
 
         var prodFaker = new Faker<Product>("pl")
-
-
-
-
-  .CustomInstantiator(f => ObjectSpace.CreateObject<Product>())
-      .RuleFor(o => o.Name, f => f.Commerce.ProductName())
-      .RuleFor(o => o.Description, f => f.Commerce.ProductDescription())
-      .RuleFor(o => o.ShortName, f => f.Commerce.Product())
-      .RuleFor(o => o.UnitPrice, f => f.Random.Decimal(0.01M, 100M))
-      .RuleFor(o => o.VatRate, f => f.PickRandom(rates))
-      .RuleFor(o => o.Gtin, f => f.Commerce.Ean13());
+        .CustomInstantiator(f => ObjectSpace.CreateObject<Product>())
+        .RuleFor(o => o.Name, f => f.Commerce.ProductName())
+        .RuleFor(o => o.Description, f => f.Commerce.ProductDescription())
+        .RuleFor(o => o.ShortName, f => f.Commerce.Product())
+        .RuleFor(o => o.UnitPrice, f => f.Random.Decimal(0.01M, 100M))
+        .RuleFor(o => o.VatRate, f => f.PickRandom(rates))
+        .RuleFor(o => o.Group, f => f.PickRandom(groups))
+        .RuleFor(o => o.Gtin, f => f.Commerce.Ean13());
 
         prodFaker.Generate(100);
+
+
+
+        var cusFaker = new Faker<Customer>("pl")
+            .CustomInstantiator(f => ObjectSpace.CreateObject<Customer>())
+
+            .RuleFor(o => o.Notes, f => f.Company.CatchPhrase())
+            .RuleFor(o => o.CompanyName, f => f.Company.CompanyName())
+            .RuleFor(o => o.Segment, f => f.PickRandom<Segment>())
+            .RuleFor(o => o.Email, (f, c) => f.Internet.Email());
+        cusFaker.Generate(10);
+        ObjectSpace.CommitChanges();
+
 
         ObjectSpace.CommitChanges(); //This line persists created object(s).
     }
 
-    private Position CreateProductGroup(string name)
+    private ProductGroup CreateProductGroup(string name)
     {
-        ProductGroup group = ObjectSpace.FirstOrDefault<ProductGroup>(x => x.Name == "Hardware");
+        ProductGroup group = ObjectSpace.FirstOrDefault<ProductGroup>(x => x.Name == name);
         if (group == null)
         {
             group = ObjectSpace.CreateObject<ProductGroup>();
-            group.Name = "Hardware";
+            group.Name = name;
         }
 
         return group;
