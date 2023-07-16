@@ -229,6 +229,8 @@ Można to bylo zrobic w kontrolerze dla wszystkich list, ale checbox na listach 
 
 ## Zapamiętywanie ustawień warunkowych (Tylko WinForms) 
 
+[How to enable the Conditional Formatting feature of the WinForms GridControl, TreeList and PivotGridControl in the XAF ListView and preserve formatting settings between runs | DevExpress Support](https://supportcenter.devexpress.com/ticket/details/t291012/how-to-enable-the-conditional-formatting-feature-of-the-winforms-gridcontrol-treelist)
+
 
 
 Grid w winform ma świetny mechanizm kolorowania warunkowego wierszy czy pojedynczych komórek:
@@ -354,3 +356,12 @@ Wadą jego jest jednak to, ze nie jest zapamiętywany. Nie mniej jednak można t
 
 ```
 
+
+
+
+
+## CustomViewVariants
+
+
+
+https://supportcenter.devexpress.com/ticket/details/e2813/how-to-save-the-currently-opened-view-as-a-new-view-variant-at-runtime#UserViewVariants/ViewVariantParameterObject.cs(vb)
