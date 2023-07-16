@@ -18,6 +18,8 @@ Inne dodatkowe notatki w grupie Receptury
 
 [Data Grid](Receptury_dataGrid.md)
 
+[Własne filtrowanie na Data Grid](Receptury_Filtering.md)
+
 [Kontrolery](Receptury_Kontrolery.md)
 
 
