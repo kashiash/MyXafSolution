@@ -8,6 +8,7 @@ using DevExpress.ExpressApp.DC;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl.EF;
 using DevExpress.XtraCharts;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyXafSolution.Module.BusinessObjects
 {
@@ -21,6 +22,7 @@ namespace MyXafSolution.Module.BusinessObjects
         public virtual string Description { get; set; }
 
         public virtual ProductGroup Group { get; set; }
+        [Precision(18, 4)]
         public virtual decimal UnitPrice { get; set; }
         public virtual VatRate VatRate { get; set; }
         public virtual string Gtin { get; set; }

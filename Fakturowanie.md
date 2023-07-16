@@ -44,9 +44,39 @@ Grupa produktów:
     }
 ```
 
+Stawki Vat
 
-
+```csharp
+    [DefaultClassOptions]
+    [NavigationItem("Others")]
+    [DefaultProperty(nameof(Symbol))]
+    public class VatRate :BaseObject
+    {
+        [FieldSize(3)]
+       
+        public virtual string Symbol { get; set; }
+        [Precision(18, 2)]
+        public virtual decimal RateValue { get; set; }
+    }
 ```
 
+Product
+
+```csharp
+     [DefaultClassOptions]
+    [DefaultProperty(nameof(ShortName))]
+    public class Product : BaseObject
+    {
+        [FieldSize(25)]
+        public virtual string ShortName { get; set; }
+        public virtual string Name { get; set; }
+        public virtual string Description { get; set; }
+
+        public virtual ProductGroup Group { get; set; }
+        [Precision(18, 4)]
+        public virtual decimal UnitPrice { get; set; }
+        public virtual VatRate VatRate { get; set; }
+        public virtual string Gtin { get; set; }
+    }
 ```
 

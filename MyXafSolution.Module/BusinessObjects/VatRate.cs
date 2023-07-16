@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
+using DevExpress.ExpressApp.Data;
 using DevExpress.ExpressApp.DC;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl.EF;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyXafSolution.Module.BusinessObjects
 {
     [DefaultClassOptions]
     [NavigationItem("Others")]
     [DefaultProperty(nameof(Symbol))]
-    public class VatRate : BaseObject
+    public class VatRate :BaseObject
     {
         [FieldSize(3)]
+       
         public virtual string Symbol { get; set; }
+        [Precision(18, 2)]
         public virtual decimal RateValue { get; set; }
     }
 }
