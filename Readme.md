@@ -1528,6 +1528,8 @@ wiekszosc jest pokazana tutaj, [Customize Data Display and View Layout | eXpress
 
 ## Filtrowanie
 
+https://docs.devexpress.com/eXpressAppFramework/113307/filtering/in-list-view/function-criteria-operators
+
 
 
 możemy przy każdej klasie zdefiniować filtry predefiniowane - gotowe do użycia, za pomocą atrybutu `ListViewFilter`: 
@@ -1552,6 +1554,10 @@ public class DemoTask : BaseObject
    ...
 }
 ```
+
+
+
+![image-20230716110436041](image-20230716110436041.png)
 
 
 

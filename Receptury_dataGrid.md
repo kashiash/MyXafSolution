@@ -137,6 +137,10 @@ Winforms
     }
 ```
 
+![image-20230716110623174](image-20230716110623174.png)
+
+
+
 Blazor
 
 ```csharp
@@ -165,12 +169,188 @@ Blazor
     }
 ```
 
+### Zaznaczanie wierszy checkboxem (WinForms)
+
+Można to bylo zrobic w kontrolerze dla wszystkich list, ale checbox na listach nie jest standardem w Windows i lepiej nie korzystać z tej opcji wszędzie tylko faktycznie gdzie jest potrzebne. Dodatkowo pojawiają sie tam 2 drobne problemy :
+
+1. Grid automatycznie oznacza pierwszy wiersz jako wybrany, co często przeszkadza, wiec trzeba odznaczyć rekordy :  `gridListEditor.GridView.ClearSelection();`
+2. Przestaje dzialac double clik na liscie i nie otwiera rekordu, wiec trezba dodac:  `listViewProcessCurrentObjectController.ProcessCurrentObjectAction.SelectionDependencyType = SelectionDependencyType.Independent;`
+
+```csharp
+
+    public class CheckBoxRowSelectController : ObjectViewController<ListView,Employee>
+    {
+        GridListEditor gridListEditor;
+        ListViewProcessCurrentObjectController listViewProcessCurrentObjectController;
+        protected override void OnViewControlsCreated()
+        {
+            base.OnViewControlsCreated();
+            gridListEditor = View.Editor as GridListEditor;
+            if (gridListEditor != null)
+            {
+                listViewProcessCurrentObjectController = Frame.GetController<ListViewProcessCurrentObjectController>();
+                if (listViewProcessCurrentObjectController != null)
+                {
+                    listViewProcessCurrentObjectController.ProcessCurrentObjectAction.SelectionDependencyType = SelectionDependencyType.Independent;
+                }
+                gridListEditor.ControlDataSourceChanged += GridListEditor_ControlDataSourceChanged;
+                gridListEditor.GridView.OptionsBehavior.EditorShowMode = EditorShowMode.MouseDown;
+                gridListEditor.GridView.OptionsSelection.MultiSelectMode = GridMultiSelectMode.CheckBoxRowSelect;
+            }
+        }
+        private void GridListEditor_ControlDataSourceChanged(object sender, EventArgs e)
+        {
+            gridListEditor.GridView.ClearSelection();
+        }
+        protected override void OnDeactivated()
+        {
+            base.OnDeactivated();
+            if (gridListEditor != null)
+            {
+                gridListEditor.ControlDataSourceChanged -= GridListEditor_ControlDataSourceChanged;
+                gridListEditor = null;
+            }
+            if (listViewProcessCurrentObjectController != null)
+            {
+                listViewProcessCurrentObjectController.ProcessCurrentObjectAction.SelectionDependencyType = SelectionDependencyType.RequireSingleObject;
+                listViewProcessCurrentObjectController = null;
+            }
+        }
+    }
+```
 
 
-## Zapamiętywanie filtrów
+
+## 
 
 
 
 
 
 ## Zapamiętywanie ustawień warunkowych (Tylko WinForms) 
+
+
+
+Grid w winform ma świetny mechanizm kolorowania warunkowego wierszy czy pojedynczych komórek:
+
+![image-20230716111314495](image-20230716111314495.png)
+
+![image-20230716111515526](image-20230716111515526.png)
+
+
+
+Wadą jego jest jednak to, ze nie jest zapamiętywany. Nie mniej jednak można to dołożyć:
+
+```csharp
+   public class GridFormatRulesStoreController : ViewController<ListView>, IModelExtender
+    {
+        GridFormatRulesStore formatRulesStore = null;
+        GridListEditor gridListEditor = null;
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+            gridListEditor = View.Editor as GridListEditor;
+            if (gridListEditor != null)
+            {
+                View.ControlsCreated += View_ControlsCreated;
+                View.ModelSaved += View_ModelSaved;
+            }
+        }
+        void View_ControlsCreated(object sender, EventArgs e)
+        {
+            InitializeFormatRules();
+        }
+        private void InitializeFormatRules()
+        {
+            gridListEditor.GridView.OptionsMenu.ShowConditionalFormattingItem = true;
+            formatRulesStore = new GridFormatRulesStore();
+            formatRulesStore.FormatRules = gridListEditor.GridView.FormatRules;
+            formatRulesStore.Restore(((IModelListViewGridFormatRuleSettings)View.Model).GridFormattingSettings);
+        }
+        void View_ModelSaved(object sender, EventArgs e)
+        {
+            ((IModelListViewGridFormatRuleSettings)View.Model).GridFormattingSettings = formatRulesStore.Save();
+        }
+        protected override void OnDeactivated()
+        {
+            if (gridListEditor != null)
+            {
+                View.ModelSaved -= View_ModelSaved;
+                View.ControlsCreated -= View_ControlsCreated;
+                gridListEditor = null;
+            }
+            base.OnDeactivated();
+        }
+        public void ExtendModelInterfaces(ModelInterfaceExtenders extenders)
+        {
+            extenders.Add<IModelListView, IModelListViewGridFormatRuleSettings>();
+        }
+    }
+    public interface IModelListViewGridFormatRuleSettings
+    {
+        [Browsable(false)]
+        string GridFormattingSettings { get; set; }
+    }
+    //Dennis: This is a modified version of the solution given at 
+   // https://www.devexpress.com/Support/Center/Question/Details/T289562 that can save/load settings into/from a string.
+    internal class GridFormatRulesStore : IXtraSerializable
+    {
+        GridFormatRuleCollection formatRules;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content), Browsable(true),
+         XtraSerializableProperty(XtraSerializationVisibility.Collection, true, false, true, 1000, XtraSerializationFlags.DefaultValue)]
+        public virtual GridFormatRuleCollection FormatRules
+        {
+            get { return formatRules; }
+            set { formatRules = value; }
+        }
+        public string Save()
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                SaveCore(new XmlXtraSerializer(), stream);
+                return Convert.ToBase64String(stream.GetBuffer());
+            }
+        }
+        public void Restore(string settings)
+        {
+            if (!string.IsNullOrEmpty(settings))
+            {
+                using (MemoryStream stream = new MemoryStream(Convert.FromBase64String(settings)))
+                {
+                    RestoreCore(new XmlXtraSerializer(), stream);
+                }
+            }
+        }
+        void SaveCore(XtraSerializer serializer, object path)
+        {
+            Stream stream = path as Stream;
+            if (stream != null)
+                serializer.SerializeObject(this, stream, GetType().Name);
+            else
+                serializer.SerializeObject(this, path.ToString(), GetType().Name);
+        }
+        void RestoreCore(XtraSerializer serializer, object path)
+        {
+            Stream stream = path as Stream;
+            if (stream != null)
+                serializer.DeserializeObject(this, stream, GetType().Name);
+            else
+                serializer.DeserializeObject(this, path.ToString(), GetType().Name);
+        }
+        void XtraClearFormatRules(XtraItemEventArgs e) { FormatRules.Clear(); }
+        object XtraCreateFormatRulesItem(XtraItemEventArgs e)
+        {
+            var rule = new GridFormatRule();
+            formatRules.Add(rule);
+            return rule;
+        }
+        #region IXtraSerializable
+        public void OnEndDeserializing(string restoredVersion) { }
+        public void OnEndSerializing() { }
+        public void OnStartDeserializing(LayoutAllowEventArgs e) { }
+        public void OnStartSerializing() { }
+        #endregion
+    }
+
+```
+
